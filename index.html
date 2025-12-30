@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>5 More Minutes - Static Demo</title>
+  <!-- This is the STATIC version for GitHub Pages - no Vite, no React, pure HTML/CSS/JS -->
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      background-color: white;
+      color: #262626;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .home-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .home-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      max-width: 400px;
+      width: 100%;
+      visibility: visible;
+      opacity: 1;
+    }
+
+    .main-title {
+      font-size: 32px;
+      font-weight: 300;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #262626;
+      letter-spacing: -0.5px;
+    }
+
+    .profile-picture-container {
+      margin-bottom: 20px;
+    }
+
+    .profile-picture {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: none;
+    }
+
+    .profile-picture-placeholder {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background-color: #dbdbdb;
+      border: none;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      font-weight: 400;
+      margin-bottom: 30px;
+      text-align: center;
+      color: #262626;
+    }
+
+    .time-display {
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 40px;
+      text-align: center;
+      color: #262626;
+    }
+
+    .buttons-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      width: 100%;
+      margin-bottom: 40px;
+    }
+
+    .action-button {
+      background-color: #0095f6;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      width: 100%;
+    }
+
+    .action-button:hover:not(:disabled) {
+      background-color: #1877f2;
+    }
+
+    .action-button:active:not(:disabled) {
+      background-color: #0064d6;
+    }
+
+    .action-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .footer-links {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+
+    .link-button {
+      background: none;
+      border: none;
+      color: #8e8e8e;
+      cursor: not-allowed;
+      font-size: 12px;
+      padding: 0;
+      text-decoration: none;
+      opacity: 0.5;
+    }
+
+    .link-separator {
+      color: #8e8e8e;
+    }
+  </style>
+</head>
+<body>
+  <!-- STATIC DEMO VERSION - No Vite, No React, Pure HTML/CSS/JS -->
+  <noscript>
+    <div style="padding: 20px; background: yellow; color: black; position: fixed; top: 0; left: 0; right: 0; z-index: 9999;">
+      JavaScript is disabled. Please enable JavaScript to use this page.
+    </div>
+  </noscript>
+  <div class="home-container">
+    <div class="home-content">
+      <h1 class="main-title" style="display: block !important; visibility: visible !important;">5 More Minutes</h1>
+
+      <div class="profile-picture-container">
+        <img
+          id="profile-picture"
+          src="daniel-profile.jpg"
+          alt="Profile"
+          class="profile-picture"
+          onerror="handleImageError()"
+        />
+        <div id="profile-placeholder" class="profile-picture-placeholder" style="display: none;"></div>
+      </div>
+
+      <h2 class="subtitle">with tombetthauser!</h2>
+
+      <div class="time-display" id="time-display">
+        + 0 minutes
+      </div>
+
+      <div class="buttons-container">
+        <button class="action-button" data-action="skipped a meal!" data-minutes="30">
+          skipped a meal!
+        </button>
+        <button class="action-button" data-action="skipped a drink!" data-minutes="15">
+          skipped a drink!
+        </button>
+        <button class="action-button" data-action="went running!" data-minutes="45">
+          went running!
+        </button>
+      </div>
+
+      <div class="footer-links">
+        <button class="link-button" disabled>Log out</button>
+        <span class="link-separator">•</span>
+        <button class="link-button" disabled>Edit profile</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Handle image load error
+    function handleImageError() {
+      const img = document.getElementById('profile-picture');
+      const placeholder = document.getElementById('profile-placeholder');
+      if (img) img.style.display = 'none';
+      if (placeholder) placeholder.style.display = 'block';
+    }
+
+    // Button actions to minutes mapping
+    const BUTTON_MINUTES = {
+      'skipped a meal!': 30,
+      'skipped a drink!': 15,
+      'went running!': 45,
+    };
+
+    // State - resets on page reload
+    let totalMinutes = 0;
+
+    // Convert total minutes to days, hours, minutes
+    function minutesToDaysHoursMinutes(minutes) {
+      const days = Math.floor(minutes / (24 * 60));
+      const remaining = minutes % (24 * 60);
+      const hours = Math.floor(remaining / 60);
+      const mins = remaining % 60;
+      return { days, hours, minutes: mins };
+    }
+
+    // Format time display
+    function formatTimeDisplay(timeData) {
+      const parts = [];
+      if (timeData.days > 0) {
+        parts.push(`${timeData.days} day${timeData.days !== 1 ? 's' : ''}`);
+      }
+      if (timeData.hours > 0) {
+        parts.push(`${timeData.hours} hour${timeData.hours !== 1 ? 's' : ''}`);
+      }
+      if (timeData.minutes > 0) {
+        parts.push(`${timeData.minutes} minute${timeData.minutes !== 1 ? 's' : ''}`);
+      }
+      if (parts.length === 0) {
+        return '+ 0 minutes';
+      }
+      return '+ ' + parts.join(' ');
+    }
+
+    // Update time display
+    function updateTimeDisplay() {
+      const timeData = minutesToDaysHoursMinutes(totalMinutes);
+      const timeDisplay = document.getElementById('time-display');
+      timeDisplay.textContent = formatTimeDisplay(timeData);
+    }
+
+    // Handle button clicks
+    function handleButtonClick(event) {
+      const button = event.target;
+      const minutesToAdd = parseInt(button.getAttribute('data-minutes'), 10);
+      
+      if (isNaN(minutesToAdd)) return;
+
+      // Disable button temporarily for visual feedback
+      button.disabled = true;
+      
+      // Add minutes
+      totalMinutes += minutesToAdd;
+      updateTimeDisplay();
+
+      // Re-enable button after a short delay
+      setTimeout(() => {
+        button.disabled = false;
+      }, 300);
+    }
+
+    // Initialize - run immediately and also on DOMContentLoaded for safety
+    function init() {
+      // Attach click handlers to all action buttons
+      const buttons = document.querySelectorAll('.action-button');
+      buttons.forEach(button => {
+        button.addEventListener('click', handleButtonClick);
+      });
+
+      // Initial time display
+      updateTimeDisplay();
+    }
+
+    // Run when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      // DOM is already ready
+      init();
+    }
+  </script>
+</body>
+</html>
+

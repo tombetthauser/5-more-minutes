@@ -1,0 +1,11 @@
+# Example Cloudflare Tunnel configuration
+# Copy this to ~/.cloudflared/config.yml and update with your values
+
+tunnel: YOUR_TUNNEL_ID
+credentials-file: /home/pi/.cloudflared/YOUR_TUNNEL_ID.json
+
+ingress:
+  - hostname: yourdomain.com
+    service: http://127.0.0.1:5000
+  - service: http_status:404
+

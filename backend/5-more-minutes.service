@@ -1,0 +1,17 @@
+[Unit]
+Description=5 More Minutes Flask Application
+After=network.target
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/home/pi/5-more-minutes/backend
+Environment="PATH=/home/pi/5-more-minutes/venv/bin"
+Environment="SECRET_KEY=CHANGE_THIS_TO_A_RANDOM_SECRET_KEY"
+ExecStart=/home/pi/5-more-minutes/venv/bin/gunicorn -c gunicorn_config.py app:app
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+
