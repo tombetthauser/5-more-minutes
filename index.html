@@ -111,7 +111,7 @@
       border-radius: 8px;
       padding: 12px 24px;
       font-size: 18px;
-      font-weight: 600;
+      font-weight: 400;
       cursor: pointer;
       transition: opacity 0.2s, transform 0.1s;
       width: 100%;
@@ -493,7 +493,7 @@
       const title = document.getElementById('warning-title');
       const message = document.getElementById('warning-message');
       const minutesText = document.getElementById('warning-minutes-text');
-      const minutesValue = document.getElementById('warning-minutes-value');
+      let minutesValue = document.getElementById('warning-minutes-value');
       const confirmBtn = document.getElementById('warning-confirm-btn');
       const metadata = document.getElementById('warning-metadata');
       const repeatableValue = document.getElementById('warning-repeatable-value');
@@ -548,9 +548,12 @@
       
       // Set minutes text
       const minutes = action.minutes || 0;
-      minutesValue.textContent = minutes;
-      const minutesTextFull = `This action will add <strong>${minutes}</strong> minute${minutes !== 1 ? 's' : ''}`;
-      minutesText.innerHTML = minutesTextFull;
+      const minutesTextFull = `This action will add <strong id="warning-minutes-value">${minutes}</strong> minute${minutes !== 1 ? 's' : ''}`;
+      if (minutesText) {
+        minutesText.innerHTML = minutesTextFull;
+        // Re-find minutesValue after innerHTML update (it gets replaced)
+        minutesValue = document.getElementById('warning-minutes-value');
+      }
       
       // Set metadata
       const mustBeLoggedAtEndOfDay = action['must-be-logged-at-end-of-day'] || false;
