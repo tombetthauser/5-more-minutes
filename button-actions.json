@@ -73,15 +73,6 @@
       "warning": "Benefits are linked to regular intake over time. More is not always better; follow mercury guidance and favor low-mercury species (e.g., salmon, sardines, cod)."
     },
     {
-      "text": "walked for an hour!",
-      "minutes": 60,
-      "similar-to": ["went for a walk!"],
-      "is-repeatable-daily": true,
-      "reduces-after-first-time-to": 30,
-      "must-be-logged-at-end-of-day": false,
-      "warning": "Additional walking the same day is beneficial but shows diminishing returns; each extra session tends to add less longevity benefit than the first."
-    },
-    {
       "text": "got some exercise!",
       "minutes": 90,
       "similar-to": ["went for a run!"],
@@ -113,21 +104,12 @@
       "minutes": 20,
       "similar-to": ["walked for an hour!"],
       "is-repeatable-daily": true,
-      "reduces-after-first-time-to": 10,
-      "must-be-logged-at-end-of-day": false,
-      "warning": "Only counts for a 20+ minute low-intensity walk for stress relief. Additional low-intensity walks can help but typically show diminishing returns as total daily activity accumulates."
-    },
-    {
-      "text": "slept 7+ hours!",
-      "minutes": 45,
-      "similar-to": ["avoided short sleep!"],
-      "is-repeatable-daily": false,
       "reduces-after-first-time-to": null,
-      "must-be-logged-at-end-of-day": true,
-      "warning": "Only counts if you slept 7-8 hours. Adults are generally recommended to get 7+ hours regularly; persistent short sleep is linked to adverse outcomes. If snoring/apnea/insomnia is present, address that rather than only increasing time in bed."
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Counts for a 20+ minute low-intensity walk for stress relief. Additional low-intensity walks can help but typically show diminishing returns as total daily activity accumulates."
     },
     {
-      "text": "avoided short sleep!",
+      "text": "got real sleep!",
       "minutes": 90,
       "similar-to": ["slept 7+ hours!"],
       "is-repeatable-daily": false,
@@ -136,9 +118,9 @@
       "warning": "Only counts if you avoided sleeping under 6 hours. Chronic short sleep (<7 hours) is associated with health risks; focus on sustainable sleep habits and evaluate possible sleep disorders if persistent."
     },
     {
-      "text": "spent time with friends!",
+      "text": "hung out with friend group!",
       "minutes": 75,
-      "similar-to": ["had a good talk!"],
+      "similar-to": ["hung out with a friend!"],
       "is-repeatable-daily": false,
       "reduces-after-first-time-to": null,
       "must-be-logged-at-end-of-day": false,
@@ -163,15 +145,6 @@
       "warning": "Only counts for out-of-town drives with freeway, round trip that you skipped."
     },
     {
-      "text": "kept sleep schedule!",
-      "minutes": 20,
-      "similar-to": ["avoided doomscrolling!"],
-      "is-repeatable-daily": false,
-      "reduces-after-first-time-to": null,
-      "must-be-logged-at-end-of-day": true,
-      "warning": "Only counts if you maintained a consistent sleep schedule (similar bed/wake times)."
-    },
-    {
       "text": "ended work on time!",
       "minutes": 25,
       "similar-to": ["avoided work messages!"],
@@ -181,9 +154,9 @@
       "warning": "Only counts if you ended work at a predictable time and stuck to it."
     },
     {
-      "text": "had a good talk!",
+      "text": "hung out with a friend!",
       "minutes": 30,
-      "similar-to": ["spent time with friends!"],
+      "similar-to": ["hung out with friend group!"],
       "is-repeatable-daily": false,
       "reduces-after-first-time-to": null,
       "must-be-logged-at-end-of-day": false,
@@ -199,22 +172,13 @@
       "warning": "Only counts if you spent time outdoors during daylight. Use sun protection as appropriate for skin type/location; avoid unsafe heat/air quality."
     },
     {
-      "text": "avoided doomscrolling!",
+      "text": "avoided doom-scrolling!",
       "minutes": 20,
       "similar-to": ["kept sleep schedule!"],
       "is-repeatable-daily": false,
       "reduces-after-first-time-to": null,
       "must-be-logged-at-end-of-day": true,
       "warning": "Only counts if you avoided late-night doomscrolling (excessive social media/news consumption before bed)."
-    },
-    {
-      "text": "practiced stress relief!",
-      "minutes": 20,
-      "similar-to": ["had quiet rest!"],
-      "is-repeatable-daily": false,
-      "reduces-after-first-time-to": null,
-      "must-be-logged-at-end-of-day": false,
-      "warning": "Only counts if you practiced a stress-regulation technique that reduced rumination (e.g., meditation, breathing exercises, journaling)."
     },
     {
       "text": "avoided stress eating!",
@@ -226,16 +190,52 @@
       "warning": "Only counts if you avoided stress eating or binge snacking. If binge eating is frequent or feels out of control, evidence-based support (therapy/medical) is more effective than willpower alone."
     },
     {
-      "text": "didn't freak out!",
+      "text": "didn't lose it!",
       "minutes": 25,
       "similar-to": ["avoided urgency mode!"],
       "is-repeatable-daily": false,
       "reduces-after-first-time-to": null,
       "must-be-logged-at-end-of-day": true,
-      "warning": "Only counts if you maintained a sense of control over the day's schedule (planned breaks, predictable timing, not constantly reactive)."
+      "warning": "Avoided getting triggered and overreacting to something or someone."
     }
   ],
   "unused-actions": [
+    {
+      "text": "walked for an hour!",
+      "minutes": 60,
+      "similar-to": ["went for a walk!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": 30,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Additional walking the same day is beneficial but shows diminishing returns; each extra session tends to add less longevity benefit than the first."
+    },
+    {
+      "text": "slept 7+ hours!",
+      "minutes": 45,
+      "similar-to": ["got real sleep!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you slept 7-8 hours. Adults are generally recommended to get 7+ hours regularly; persistent short sleep is linked to adverse outcomes. If snoring/apnea/insomnia is present, address that rather than only increasing time in bed."
+    },
+    {
+      "text": "kept sleep schedule!",
+      "minutes": 20,
+      "similar-to": ["avoided doom-scrolling!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you maintained a consistent sleep schedule (similar bed/wake times)."
+    },
+    {
+      "text": "practiced stress relief!",
+      "minutes": 20,
+      "similar-to": ["had quiet rest!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts if you practiced a stress-regulation technique that reduced rumination (e.g., meditation, breathing exercises, journaling)."
+    },
     {
       "text": "skipped a big roadtrip!",
       "minutes": 178,
@@ -275,7 +275,7 @@
     {
       "text": "avoided urgency mode!",
       "minutes": 25,
-      "similar-to": ["didn't freak out!"],
+      "similar-to": ["didn't lose it!"],
       "is-repeatable-daily": false,
       "reduces-after-first-time-to": null,
       "must-be-logged-at-end-of-day": true,
