@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTheme } from '../contexts/ThemeContext'
 import './Home.css'
 
 function Home({ user, onLogout }) {
+  const { currentTheme } = useTheme()
   const [timeData, setTimeData] = useState({ days: 0, hours: 0, minutes: 0 })
   const [loading, setLoading] = useState(false)
   const [buttonActions, setButtonActions] = useState([])
@@ -249,17 +251,32 @@ function Home({ user, onLogout }) {
             // Button is gray if taken OR if similar action was taken (for non-repeatable)
             const isGrayed = isTaken || (similarActionTaken !== null && !isRepeatable)
             
-            // Pastel rainbow colors (subtle)
-            const pastelColors = [
-              '#F5D0D4', // Subtle pink
-              '#F5E4D0', // Subtle peach
-              '#F5F5D0', // Subtle yellow
-              '#D0F5DD', // Subtle mint
-              '#D0E4F5', // Subtle blue
-              '#E4D0F5', // Subtle lavender
-            ]
-            const colorIndex = index % pastelColors.length
-            const buttonColor = pastelColors[colorIndex]
+            // Determine button style based on theme
+            let buttonStyle = {}
+            if (!isGrayed) {
+              if (currentTheme.id === 'dark' || currentTheme.id === 'terracotta' || currentTheme.id === 'claude') {
+                // Dark, Terracotta, and Claude themes: use theme's button colors
+                buttonStyle = {
+                  backgroundColor: currentTheme.colors.buttonBg,
+                  color: currentTheme.colors.buttonText,
+                }
+              } else {
+                // Light mode: pastel rainbow colors
+                const pastelColors = [
+                  '#F5D0D4', // Subtle pink
+                  '#F5E4D0', // Subtle peach
+                  '#F5F5D0', // Subtle yellow
+                  '#D0F5DD', // Subtle mint
+                  '#D0E4F5', // Subtle blue
+                  '#E4D0F5', // Subtle lavender
+                ]
+                const colorIndex = index % pastelColors.length
+                buttonStyle = {
+                  backgroundColor: pastelColors[colorIndex],
+                  color: currentTheme.colors.buttonText,
+                }
+              }
+            }
             
             return (
               <button
@@ -267,7 +284,7 @@ function Home({ user, onLogout }) {
                 className={`action-button ${isGrayed ? 'action-button-taken' : ''}`}
                 onClick={() => handleButtonClick(action)}
                 disabled={loading}
-                style={!isGrayed ? { backgroundColor: buttonColor, color: '#262626' } : {}}
+                style={buttonStyle}
               >
                 {action.text} (+{action.minutes})
               </button>

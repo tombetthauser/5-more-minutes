@@ -4,6 +4,6 @@
   align-items: center;
   height: 100vh;
   font-size: 18px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
 }
 

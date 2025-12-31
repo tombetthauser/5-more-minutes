@@ -1,5 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { useState, useEffect } from 'react'
+import { ThemeProvider } from './contexts/ThemeContext'
+import ThemeToggle from './components/ThemeToggle'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
@@ -52,50 +54,53 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route
-          path="/login"
-          element={
-            user ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />
-          }
-        />
-        <Route
-          path="/register"
-          element={
-            user ? (
-              <Navigate to="/" replace />
-            ) : (
-              <Register onLogin={handleLogin} />
-            )
-          }
-        />
-        <Route
-          path="/"
-          element={
-            user ? (
-              <Home user={user} onLogout={handleLogout} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/edit-profile"
-          element={
-            user ? (
-              <EditProfile user={user} onUpdate={setUser} />
-            ) : (
-              <Navigate to="/login" replace />
-            )
-          }
-        />
-        <Route
-          path="/users"
-          element={<Users />}
-        />
-      </Routes>
-    </BrowserRouter>
+    <ThemeProvider>
+      <BrowserRouter>
+        <ThemeToggle />
+        <Routes>
+          <Route
+            path="/login"
+            element={
+              user ? <Navigate to="/" replace /> : <Login onLogin={handleLogin} />
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              user ? (
+                <Navigate to="/" replace />
+              ) : (
+                <Register onLogin={handleLogin} />
+              )
+            }
+          />
+          <Route
+            path="/"
+            element={
+              user ? (
+                <Home user={user} onLogout={handleLogout} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/edit-profile"
+            element={
+              user ? (
+                <EditProfile user={user} onUpdate={setUser} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/users"
+            element={<Users />}
+          />
+        </Routes>
+      </BrowserRouter>
+    </ThemeProvider>
   )
 }
 

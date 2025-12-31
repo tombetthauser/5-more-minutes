@@ -1,7 +1,8 @@
 .users-container {
   min-height: 100vh;
-  background-color: #fafafa;
+  background-color: var(--color-background);
   padding: 40px 20px;
+  transition: background-color 0.3s ease;
 }
 
 .users-content {
@@ -14,15 +15,17 @@
   font-weight: 300;
   margin-bottom: 10px;
   text-align: center;
-  color: #262626;
+  color: var(--color-text);
   letter-spacing: -0.5px;
+  transition: color 0.3s ease;
 }
 
 .users-subtitle {
   font-size: 16px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
   text-align: center;
   margin-bottom: 40px;
+  transition: color 0.3s ease;
 }
 
 .users-list {
@@ -32,11 +35,12 @@
 }
 
 .user-card {
-  background-color: white;
-  border: 1px solid #dbdbdb;
+  background-color: var(--color-warningBg);
+  border: 1px solid var(--color-border);
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .user-header {
@@ -60,15 +64,17 @@
   height: 60px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #dbdbdb;
+  border: 2px solid var(--color-border);
+  transition: border-color 0.3s ease;
 }
 
 .user-profile-placeholder {
   width: 60px;
   height: 60px;
   border-radius: 50%;
-  background-color: #dbdbdb;
-  border: 2px solid #dbdbdb;
+  background-color: var(--color-placeholder);
+  border: 2px solid var(--color-border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .user-info {
@@ -79,19 +85,22 @@
   font-size: 18px;
   font-weight: 600;
   margin: 0 0 5px 0;
-  color: #262626;
+  color: var(--color-surfaceText, var(--color-text));
+  transition: color 0.3s ease;
 }
 
 .user-username {
   font-size: 14px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
   margin: 0 0 5px 0;
+  transition: color 0.3s ease;
 }
 
 .user-email {
   font-size: 14px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .user-stats {
@@ -109,14 +118,16 @@
 
 .stat-label {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
   font-weight: 500;
+  transition: color 0.3s ease;
 }
 
 .stat-value {
   font-size: 16px;
-  color: #262626;
+  color: var(--color-surfaceText, var(--color-text));
   font-weight: 600;
+  transition: color 0.3s ease;
 }
 
 .user-actions-header {
@@ -125,15 +136,17 @@
   align-items: center;
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid #dbdbdb;
+  border-top: 1px solid var(--color-border);
   flex-wrap: wrap;
   gap: 10px;
+  transition: border-color 0.3s ease;
 }
 
 .user-created {
   font-size: 12px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
   margin: 0;
+  transition: color 0.3s ease;
 }
 
 .user-controls {
@@ -145,30 +158,29 @@
 .user-toggle-button,
 .user-reset-button {
   padding: 6px 12px;
-  border: 1px solid #dbdbdb;
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
-  background-color: white;
-  color: #262626;
+  transition: all 0.3s ease;
+  background-color: var(--color-warningBg);
+  color: var(--color-surfaceText, var(--color-text));
 }
 
 .user-toggle-button:hover {
-  background-color: #fafafa;
-  border-color: #8e8e8e;
+  background-color: var(--color-surface);
+  border-color: var(--color-textSecondary);
 }
 
 .user-reset-button {
-  background-color: #ed4956;
+  background-color: var(--color-error);
   color: white;
-  border-color: #ed4956;
+  border-color: var(--color-error);
 }
 
 .user-reset-button:hover:not(:disabled) {
-  background-color: #d32f2f;
-  border-color: #d32f2f;
+  opacity: 0.8;
 }
 
 .user-reset-button:disabled {
@@ -179,15 +191,17 @@
 .user-actions-section {
   margin-top: 15px;
   padding-top: 15px;
-  border-top: 1px solid #dbdbdb;
+  border-top: 1px solid var(--color-border);
+  transition: border-color 0.3s ease;
 }
 
 .actions-loading,
 .no-actions {
   text-align: center;
   padding: 20px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
   font-size: 14px;
+  transition: color 0.3s ease;
 }
 
 .actions-list {
@@ -197,10 +211,11 @@
 }
 
 .action-item {
-  background-color: #fafafa;
-  border: 1px solid #dbdbdb;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
   border-radius: 6px;
   padding: 12px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
 .action-main {
@@ -213,27 +228,31 @@
 .action-text {
   font-size: 14px;
   font-weight: 500;
-  color: #262626;
+  color: var(--color-surfaceText, var(--color-text));
   flex: 1;
+  transition: color 0.3s ease;
 }
 
 .action-minutes {
   font-size: 13px;
   font-weight: 600;
-  color: #0095f6;
+  color: var(--color-primary);
   margin-left: 12px;
+  transition: color 0.3s ease;
 }
 
 .action-time {
   font-size: 11px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
+  transition: color 0.3s ease;
 }
 
 .no-users {
   text-align: center;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
   font-size: 16px;
   padding: 40px;
+  transition: color 0.3s ease;
 }
 
 .loading,
@@ -241,11 +260,12 @@
   text-align: center;
   padding: 40px;
   font-size: 18px;
-  color: #8e8e8e;
+  color: var(--color-textSecondary);
+  transition: color 0.3s ease;
 }
 
 .error {
-  color: #ed4956;
+  color: var(--color-error);
 }
 
 @media (max-width: 600px) {
