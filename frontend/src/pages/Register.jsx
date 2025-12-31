@@ -62,11 +62,15 @@ function Register({ onLogin }) {
     <div className="auth-container">
       <div className="auth-box">
         <h1 className="auth-title">5 More Minutes</h1>
+        <p className="auth-description">
+          Track and log the health benefits of things you do or skip throughout the day. 
+          Increase your average life expectancy to spend more time with someone or something you care about.
+        </p>
         <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="text"
             name="username"
-            placeholder="Username"
+            placeholder="Your username"
             value={formData.username}
             onChange={handleChange}
             required
@@ -75,7 +79,7 @@ function Register({ onLogin }) {
           <input
             type="email"
             name="email"
-            placeholder="Email"
+            placeholder="Your email"
             value={formData.email}
             onChange={handleChange}
             required
@@ -84,7 +88,7 @@ function Register({ onLogin }) {
           <input
             type="text"
             name="displayName"
-            placeholder="Display Name"
+            placeholder="Name of the person / thing you want more time with"
             value={formData.displayName}
             onChange={handleChange}
             required
@@ -99,13 +103,16 @@ function Register({ onLogin }) {
             required
             className="auth-input"
           />
-          <input
-            type="file"
-            name="profilePicture"
-            accept="image/*"
-            onChange={handleChange}
-            className="auth-input-file"
-          />
+          <label className="auth-file-label">
+            Picture of the person / thing you want more time with
+            <input
+              type="file"
+              name="profilePicture"
+              accept="image/*"
+              onChange={handleChange}
+              className="auth-input-file"
+            />
+          </label>
           {error && <div className="auth-error">{error}</div>}
           <button
             type="submit"

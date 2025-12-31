@@ -43,6 +43,10 @@ function Login({ onLogin }) {
     <div className="auth-container">
       <div className="auth-box">
         <h1 className="auth-title">5 More Minutes</h1>
+        <p className="auth-description">
+          Track and log the health benefits of things you do or skip throughout the day. 
+          Increase your average life expectancy to spend more time with someone or something you care about.
+        </p>
         <form onSubmit={handleSubmit} className="auth-form">
           <input
             type="text"

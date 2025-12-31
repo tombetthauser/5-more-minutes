@@ -15,6 +15,10 @@ function Home({ user, onLogout }) {
   const navigate = useNavigate()
 
   useEffect(() => {
+    // Scroll to top and reset zoom on mount
+    window.scrollTo(0, 0)
+    document.body.style.zoom = '1'
+    
     fetchTime()
     loadButtonActions()
     fetchTodayActions()

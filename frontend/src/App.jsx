@@ -13,6 +13,13 @@ function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
+    // Scroll to top and reset zoom on initial load
+    window.scrollTo(0, 0)
+    document.body.style.zoom = '1'
+    if (document.documentElement) {
+      document.documentElement.style.zoom = '1'
+    }
+    
     checkAuth()
   }, [])
 
