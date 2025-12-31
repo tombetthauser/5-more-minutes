@@ -27,7 +27,8 @@
 }
 
 .profile-picture-container {
-  margin-bottom: 20px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .profile-picture {
@@ -43,7 +44,7 @@
   width: 300px;
   height: 300px;
   border-radius: 50%;
-  background-color: var(--color-placeholder);
+  background-color: var(--color-defaultImageBackgroundDivColor, #666);
   border: none;
   transition: background-color 0.3s ease;
 }
@@ -51,7 +52,8 @@
 .subtitle {
   font-size: 32px;
   font-weight: 400;
-  margin-bottom: 30px;
+  margin-top: 10px;
+  margin-bottom: 20px;
   text-align: center;
   color: var(--color-text);
   transition: color 0.3s ease;

@@ -85,14 +85,14 @@ function Register({ onLogin }) {
             required
             className="auth-input"
           />
-          <input
-            type="text"
+          <textarea
             name="displayName"
             placeholder="Name of the person / thing you want more time with"
             value={formData.displayName}
             onChange={handleChange}
             required
-            className="auth-input"
+            className="auth-textarea"
+            rows={2}
           />
           <input
             type="password"
@@ -104,13 +104,14 @@ function Register({ onLogin }) {
             className="auth-input"
           />
           <label className="auth-file-label">
-            Picture of the person / thing you want more time with
+            Upload a picture of the thing or person you want more time with...
             <input
               type="file"
               name="profilePicture"
               accept="image/*"
               onChange={handleChange}
               className="auth-input-file"
+              required
             />
           </label>
           {error && <div className="auth-error">{error}</div>}

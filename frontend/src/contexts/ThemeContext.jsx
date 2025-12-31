@@ -31,6 +31,9 @@ const themes = [
       plainTextLinkTextColorUnclicked: '#fff', // Light blue for contrast on gray
       plainTextLinkTextColorClicked: '#fff', // iOS blue (slightly darker when clicked)
       imageBorder: '5px solid #ccc',
+      loginRegistrationTextLinkColor: '#666',
+      appDescriptionTextColor: '#666',
+      defaultImageBackgroundDivColor: '#666',
     }
   },
   {
@@ -60,6 +63,9 @@ const themes = [
       plainTextLinkTextColorUnclicked: '#6bb3ff', // Light blue for contrast on terracotta
       plainTextLinkTextColorClicked: '#4a90e2', // Primary blue (darker when clicked)
       imageBorder: '',
+      loginRegistrationTextLinkColor: '#666',
+      appDescriptionTextColor: '#666',
+      defaultImageBackgroundDivColor: '#666',
     }
   },
   {
@@ -89,6 +95,9 @@ const themes = [
       plainTextLinkTextColorUnclicked: '#0095f6', // Primary blue
       plainTextLinkTextColorClicked: '#1877f2', // Primary hover (darker when clicked)
       imageBorder: '',
+      loginRegistrationTextLinkColor: '#666',
+      appDescriptionTextColor: '#666',
+      defaultImageBackgroundDivColor: '#666',
     }
   },
   {
@@ -118,6 +127,9 @@ const themes = [
       plainTextLinkTextColorUnclicked: '#0095f6', // Primary blue
       plainTextLinkTextColorClicked: '#1877f2', // Primary hover (darker when clicked)
       imageBorder: '',
+      loginRegistrationTextLinkColor: '#666',
+      appDescriptionTextColor: '#666',
+      defaultImageBackgroundDivColor: '#666',
     }
   },
   {
@@ -147,6 +159,7 @@ const themes = [
       plainTextLinkTextColorUnclicked: '#c99a5c', // Warm brown/gold primary
       plainTextLinkTextColorClicked: '#b88a4c', // Primary hover (darker when clicked)
       imageBorder: '',
+      loginRegistrationTextLinkColor: '#666',
     }
   }
 ]
