@@ -137,6 +137,29 @@
   background-color: var(--color-surface);
 }
 
+.auth-button-reset {
+  background-color: var(--color-error);
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 8px;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.auth-button-reset:hover:not(:disabled) {
+  opacity: 0.9;
+  background-color: var(--color-error);
+}
+
+.auth-button-reset:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .auth-error {
   color: var(--color-error);
   font-size: 14px;
@@ -174,5 +197,111 @@
 
 .auth-link:hover {
   text-decoration: underline;
+}
+
+/* Warning/Confirmation Modal Styles */
+.warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-overlay);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+  transition: background-color 0.3s ease;
+}
+
+.warning-modal {
+  background-color: var(--color-warningBg);
+  border: 1px solid var(--color-warningBorder);
+  border-radius: 12px;
+  padding: 24px;
+  max-width: 428px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.warning-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.warning-header > div:first-child {
+  flex: 1;
+}
+
+.warning-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 4px 0;
+  color: var(--color-surfaceText, var(--color-text));
+  transition: color 0.3s ease;
+}
+
+.warning-action-name {
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0;
+  color: var(--color-textMuted, var(--color-textSecondary));
+  transition: color 0.3s ease;
+}
+
+.warning-message {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--color-surfaceText, var(--color-text));
+  margin: 0 0 16px 0;
+  transition: color 0.3s ease;
+}
+
+.warning-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.warning-button {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s, background-color 0.3s ease;
+}
+
+.warning-button:hover {
+  opacity: 0.8;
+}
+
+.warning-button-cancel {
+  background-color: var(--color-surface);
+  color: var(--color-surfaceText, var(--color-text));
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.warning-button-reset {
+  background-color: var(--color-error);
+  color: white;
+  transition: background-color 0.3s ease, opacity 0.3s ease;
+}
+
+.warning-button-reset:hover:not(:disabled) {
+  opacity: 0.9;
+  background-color: var(--color-error);
+}
+
+.warning-button-reset:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 

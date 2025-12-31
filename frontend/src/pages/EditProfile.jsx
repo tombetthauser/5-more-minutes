@@ -12,6 +12,8 @@ function EditProfile({ user, onUpdate }) {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
+  const [showResetModal, setShowResetModal] = useState(false)
+  const [resetting, setResetting] = useState(false)
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -58,6 +60,40 @@ function EditProfile({ user, onUpdate }) {
       setError('Network error. Please try again.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleReset = async () => {
+    setResetting(true)
+    try {
+      const response = await fetch('/api/auth/reset', {
+        method: 'POST',
+        credentials: 'include',
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setShowResetModal(false)
+        setSuccess('All actions and time have been reset successfully!')
+        // Refresh user data
+        const userResponse = await fetch('/api/auth/me', {
+          credentials: 'include',
+        })
+        if (userResponse.ok) {
+          const userData = await userResponse.json()
+          onUpdate(userData.user)
+        }
+        setTimeout(() => navigate('/'), 2000)
+      } else {
+        setError(data.error || 'Reset failed')
+        setShowResetModal(false)
+      }
+    } catch (error) {
+      setError('Network error. Please try again.')
+      setShowResetModal(false)
+    } finally {
+      setResetting(false)
     }
   }
 
@@ -134,8 +170,60 @@ function EditProfile({ user, onUpdate }) {
           >
             Cancel
           </button>
+          <button
+            type="button"
+            onClick={() => setShowResetModal(true)}
+            className="auth-button-reset"
+          >
+            Reset All Actions & Time
+          </button>
         </form>
       </div>
+
+      {showResetModal && (
+        <div className="warning-overlay" onClick={() => setShowResetModal(false)}>
+          <div className="warning-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="warning-header">
+              <div>
+                <h3 className="warning-title">Reset All Actions & Time</h3>
+                <p className="warning-action-name">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="warning-message">
+              Are you sure you want to reset all your actions and total time? This will:
+            </p>
+            <ul style={{ 
+              margin: '0 0 16px 0', 
+              paddingLeft: '20px',
+              color: 'var(--color-surfaceText, var(--color-text))',
+              fontSize: '14px',
+              lineHeight: '1.5'
+            }}>
+              <li>Delete all logged actions</li>
+              <li>Reset your total time to 0</li>
+            </ul>
+            <p className="warning-message" style={{ marginBottom: '0' }}>
+              Your username, name, email, and profile picture will not be affected.
+            </p>
+            <div className="warning-actions">
+              <button
+                className="warning-button warning-button-cancel"
+                onClick={() => setShowResetModal(false)}
+                disabled={resetting}
+              >
+                Cancel
+              </button>
+              <button
+                className="warning-button warning-button-reset"
+                onClick={handleReset}
+                disabled={resetting}
+              >
+                {resetting ? 'Resetting...' : 'Reset'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -46,8 +46,29 @@ def load_button_actions():
     }
 
 def get_button_minutes():
-    """Get current button actions mapping"""
-    return load_button_actions()
+    """Get current button actions mapping for the logged-in user"""
+    user_id = session.get('user_id')
+    button_minutes = load_button_actions()
+    
+    # Add custom actions if user is logged in
+    if user_id:
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT text, minutes
+                FROM custom_actions
+                WHERE user_id = ?
+            ''', (user_id,))
+            custom_actions = cursor.fetchall()
+            conn.close()
+            
+            for action in custom_actions:
+                button_minutes[action['text']] = action['minutes']
+        except Exception as e:
+            print(f"Error loading custom actions for button minutes: {e}")
+    
+    return button_minutes
 
 
 def get_db():
@@ -83,6 +104,22 @@ def init_db():
             user_id INTEGER NOT NULL,
             action TEXT NOT NULL,
             minutes_added INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    ''')
+    
+    # Custom actions table (user-created actions)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS custom_actions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            text TEXT NOT NULL,
+            minutes INTEGER NOT NULL,
+            similar_to TEXT,
+            is_repeatable_daily INTEGER DEFAULT 1,
+            must_be_logged_at_end_of_day INTEGER DEFAULT 0,
+            warning TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
@@ -456,22 +493,54 @@ def get_today_actions():
 @app.route('/api/button-actions', methods=['GET'])
 def get_button_actions():
     """Get button actions configuration"""
+    user_id = session.get('user_id')
+    actions = []
+    
     try:
+        # Load default actions from JSON file
         if BUTTON_ACTIONS_FILE.exists():
             with open(BUTTON_ACTIONS_FILE, 'r') as f:
                 data = json.load(f)
-                return jsonify(data), 200
+                actions = data.get('actions', [])
     except Exception as e:
         print(f"Error loading button actions: {e}")
     
-    # Fallback to default actions
-    return jsonify({
-        'actions': [
+    # If no actions from file, use fallback
+    if not actions:
+        actions = [
             {'text': 'skipped a meal!', 'minutes': 30, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
             {'text': 'skipped a drink!', 'minutes': 15, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
             {'text': 'went running!', 'minutes': 45, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False}
         ]
-    }), 200
+    
+    # Add user's custom actions if logged in
+    if user_id:
+        try:
+            conn = get_db()
+            cursor = conn.cursor()
+            cursor.execute('''
+                SELECT text, minutes, similar_to, is_repeatable_daily, 
+                       must_be_logged_at_end_of_day, warning
+                FROM custom_actions
+                WHERE user_id = ?
+                ORDER BY created_at ASC
+            ''', (user_id,))
+            custom_actions = cursor.fetchall()
+            conn.close()
+            
+            for action in custom_actions:
+                actions.append({
+                    'text': action['text'],
+                    'minutes': action['minutes'],
+                    'similar-to': json.loads(action['similar_to']) if action['similar_to'] else [],
+                    'is-repeatable-daily': bool(action['is_repeatable_daily']),
+                    'must-be-logged-at-end-of-day': bool(action['must_be_logged_at_end_of_day']),
+                    'warning': action['warning'] if action['warning'] else None,
+                })
+        except Exception as e:
+            print(f"Error loading custom actions: {e}")
+    
+    return jsonify({'actions': actions}), 200
 
 
 @app.route('/api/time/add', methods=['POST'])
@@ -588,6 +657,105 @@ def get_user_actions(user_id):
 
         return jsonify({'actions': actions_list}), 200
 
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/auth/reset', methods=['POST'])
+def reset_current_user():
+    """Reset the current user's actions and total minutes"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Delete all actions for this user
+        cursor.execute('DELETE FROM time_actions WHERE user_id = ?', (user_id,))
+
+        # Reset total minutes to 0
+        cursor.execute('''
+            UPDATE users 
+            SET total_minutes = 0
+            WHERE id = ?
+        ''', (user_id,))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({'message': 'User reset successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/custom-actions', methods=['POST'])
+def create_custom_action():
+    """Create a new custom action for the current user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.json
+        text = data.get('text', '').strip()
+        minutes = data.get('minutes', 0)
+        similar_to = data.get('similar-to', [])
+        is_repeatable_daily = data.get('is-repeatable-daily', True)
+        must_be_logged_at_end_of_day = data.get('must-be-logged-at-end-of-day', False)
+        warning = data.get('warning', '')
+        
+        if not text:
+            return jsonify({'error': 'Action text is required'}), 400
+        
+        if not isinstance(minutes, int) or minutes < 0:
+            return jsonify({'error': 'Minutes must be a non-negative integer'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Check if user already has an action with this text
+        cursor.execute('''
+            SELECT id FROM custom_actions 
+            WHERE user_id = ? AND text = ?
+        ''', (user_id, text))
+        if cursor.fetchone():
+            conn.close()
+            return jsonify({'error': 'You already have an action with this text'}), 400
+        
+        # Insert new custom action
+        cursor.execute('''
+            INSERT INTO custom_actions 
+            (user_id, text, minutes, similar_to, is_repeatable_daily, 
+             must_be_logged_at_end_of_day, warning)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            user_id,
+            text,
+            minutes,
+            json.dumps(similar_to) if similar_to else None,
+            1 if is_repeatable_daily else 0,
+            1 if must_be_logged_at_end_of_day else 0,
+            warning if warning else None
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'message': 'Custom action created successfully',
+            'action': {
+                'text': text,
+                'minutes': minutes,
+                'similar-to': similar_to,
+                'is-repeatable-daily': is_repeatable_daily,
+                'must-be-logged-at-end-of-day': must_be_logged_at_end_of_day,
+                'warning': warning,
+            }
+        }), 201
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 

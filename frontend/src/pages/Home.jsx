@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useTheme } from '../contexts/ThemeContext'
 import './Home.css'
+import '../pages/Auth.css'
 
 function Home({ user, onLogout }) {
   const { currentTheme, cycleTheme } = useTheme()
@@ -12,6 +13,15 @@ function Home({ user, onLogout }) {
   const [actionsTakenToday, setActionsTakenToday] = useState(new Set())
   const [showJsonDetails, setShowJsonDetails] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const [showCustomActionForm, setShowCustomActionForm] = useState(false)
+  const [customActionForm, setCustomActionForm] = useState({
+    text: '',
+    minutes: '',
+    isRepeatable: true,
+    mustBeLoggedAtEndOfDay: false,
+    warning: '',
+  })
+  const [creatingAction, setCreatingAction] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -203,6 +213,51 @@ function Home({ user, onLogout }) {
     setShowJsonDetails(false)
   }
 
+  const handleCustomActionSubmit = async (e) => {
+    e.preventDefault()
+    setCreatingAction(true)
+    
+    try {
+      const response = await fetch('/api/custom-actions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          text: customActionForm.text.trim(),
+          minutes: parseInt(customActionForm.minutes) || 0,
+          'is-repeatable-daily': customActionForm.isRepeatable,
+          'must-be-logged-at-end-of-day': customActionForm.mustBeLoggedAtEndOfDay,
+          warning: customActionForm.warning.trim() || null,
+          'similar-to': [],
+        }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setShowCustomActionForm(false)
+        setCustomActionForm({
+          text: '',
+          minutes: '',
+          isRepeatable: true,
+          mustBeLoggedAtEndOfDay: false,
+          warning: '',
+        })
+        // Reload button actions to include the new one
+        loadButtonActions()
+      } else {
+        alert(data.error || 'Failed to create custom action')
+      }
+    } catch (error) {
+      console.error('Failed to create custom action:', error)
+      alert('Network error. Please try again.')
+    } finally {
+      setCreatingAction(false)
+    }
+  }
+
   const profilePicUrl = user.profile_picture
     ? `/api/uploads/${user.profile_picture}`
     : null
@@ -294,6 +349,13 @@ function Home({ user, onLogout }) {
               </button>
             )
           })}
+          <button
+            className="action-button action-button-add-new"
+            onClick={() => setShowCustomActionForm(true)}
+            disabled={loading}
+          >
+            add a new button...
+          </button>
         </div>
 
         {warning && (
@@ -372,6 +434,133 @@ function Home({ user, onLogout }) {
                   Continue
                 </button>
               </div>
+            </div>
+          </div>
+        )}
+
+        {showCustomActionForm && (
+          <div className="warning-overlay" onClick={() => setShowCustomActionForm(false)}>
+            <div className="warning-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="warning-header">
+                <div>
+                  <h3 className="warning-title">Add a new custom action to your list!</h3>
+                </div>
+              </div>
+              <form onSubmit={handleCustomActionSubmit}>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--color-surfaceText, var(--color-text))'
+                  }}>
+                    Action Text *
+                  </label>
+                  <input
+                    type="text"
+                    value={customActionForm.text}
+                    onChange={(e) => setCustomActionForm({ ...customActionForm, text: e.target.value })}
+                    placeholder="e.g., did yoga!"
+                    required
+                    className="auth-input"
+                    style={{ width: '100%', marginBottom: '12px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--color-surfaceText, var(--color-text))'
+                  }}>
+                    Minutes to Add *
+                  </label>
+                  <input
+                    type="number"
+                    value={customActionForm.minutes}
+                    onChange={(e) => setCustomActionForm({ ...customActionForm, minutes: e.target.value })}
+                    placeholder="e.g., 30"
+                    required
+                    min="0"
+                    className="auth-input"
+                    style={{ width: '100%', marginBottom: '12px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    color: 'var(--color-surfaceText, var(--color-text))',
+                    cursor: 'pointer'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={customActionForm.isRepeatable}
+                      onChange={(e) => setCustomActionForm({ ...customActionForm, isRepeatable: e.target.checked })}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <span>Can be repeated daily</span>
+                  </label>
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: '14px',
+                    color: 'var(--color-surfaceText, var(--color-text))',
+                    cursor: 'pointer'
+                  }}>
+                    <input
+                      type="checkbox"
+                      checked={customActionForm.mustBeLoggedAtEndOfDay}
+                      onChange={(e) => setCustomActionForm({ ...customActionForm, mustBeLoggedAtEndOfDay: e.target.checked })}
+                      style={{ cursor: 'pointer' }}
+                    />
+                    <span>Must be logged at end of day</span>
+                  </label>
+                </div>
+                <div style={{ marginBottom: '16px' }}>
+                  <label style={{ 
+                    display: 'block', 
+                    marginBottom: '8px',
+                    fontSize: '14px',
+                    fontWeight: '500',
+                    color: 'var(--color-surfaceText, var(--color-text))'
+                  }}>
+                    Warning (optional)
+                  </label>
+                  <textarea
+                    value={customActionForm.warning}
+                    onChange={(e) => setCustomActionForm({ ...customActionForm, warning: e.target.value })}
+                    placeholder="Optional warning message to show when user clicks this action"
+                    className="auth-textarea"
+                    rows={3}
+                    style={{ width: '100%', marginBottom: '12px' }}
+                  />
+                </div>
+                <div className="warning-actions">
+                  <button
+                    type="button"
+                    className="warning-button warning-button-cancel"
+                    onClick={() => setShowCustomActionForm(false)}
+                    disabled={creatingAction}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="warning-button warning-button-confirm"
+                    disabled={creatingAction}
+                  >
+                    {creatingAction ? 'Creating...' : 'Create Action'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}

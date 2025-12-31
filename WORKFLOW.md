@@ -148,7 +148,41 @@ ssh tom@192.168.1.222 \
 
 ------------------------------------------------
 
-4) Restart the production service
+4) Database migration (if needed)
+
+The app automatically creates new database tables on startup via `init_db()`.
+If you're deploying for the first time or after schema changes:
+
+- The app will automatically create the `custom_actions` table if it doesn't exist
+- No manual migration needed - the table is created on first app startup
+- Existing data is not affected
+
+To verify the database is set up correctly:
+
+ssh tom@192.168.1.222 \
+  "cd /home/tom/apps/fivemore/backend && ./venv/bin/python -c \"from app import init_db; init_db()\""
+
+------------------------------------------------
+
+5) Environment variables
+
+Ensure the Pi has the `FIVEMORE_DB_PATH` environment variable set if you want to use
+a custom database location (e.g., for persistent storage outside the repo).
+
+Check the systemd service file:
+ssh tom@192.168.1.222 "cat /etc/systemd/system/fivemore.service"
+
+If needed, add to the service file:
+Environment="FIVEMORE_DB_PATH=/path/to/persistent/app.db"
+
+Then reload systemd:
+ssh tom@192.168.1.222 "sudo systemctl daemon-reload"
+
+If not set, the app defaults to `backend/app.db` (relative to app.py).
+
+------------------------------------------------
+
+6) Restart the production service
 
 ssh tom@192.168.1.222 "sudo systemctl restart fivemore"
 
@@ -196,6 +230,9 @@ NOTES
   /home/tom/.cloudflared/config.yaml
 - The Flask app runs on 127.0.0.1:8000
 - Only Cloudflare exposes the app publicly (no open ports)
+- Database path can be customized via `FIVEMORE_DB_PATH` environment variable
+- The app automatically creates database tables on startup (users, time_actions, custom_actions)
+- Custom actions are stored per-user in the `custom_actions` table
 
 ----------------------------------------------------------------
 
@@ -208,3 +245,19 @@ Create a deploy.sh script that:
 - restarts the service
 
 This reduces deployment to a single command.
+
+----------------------------------------------------------------
+
+RECENT CHANGES TO NOTE
+
+- Added `FIVEMORE_DB_PATH` environment variable support for custom database location
+  - If not set, defaults to `backend/app.db` (relative to app.py)
+  - Set in systemd service file if you want a persistent location outside the repo
+- Added `custom_actions` table for user-created actions
+  - Automatically created on app startup via `init_db()`
+  - No manual database migration needed
+  - Custom actions are user-specific and persist across sessions
+- Database schema changes are handled automatically
+  - Tables are created if they don't exist
+  - Existing data is never corrupted
+  - Safe to deploy without manual database steps
