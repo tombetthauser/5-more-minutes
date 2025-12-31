@@ -21,7 +21,7 @@ app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HT
 # Configuration
 BASE_DIR = Path(__file__).parent
 PROJECT_ROOT = BASE_DIR.parent
-DATABASE = BASE_DIR / 'app.db'
+DATABASE = Path(os.environ.get('FIVEMORE_DB_PATH', BASE_DIR / 'app.db'))
 UPLOAD_FOLDER = BASE_DIR / 'uploads'
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
