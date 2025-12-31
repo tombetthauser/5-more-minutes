@@ -30,8 +30,9 @@
       min-height: 100vh;
       display: flex;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
       padding: 20px;
+      overflow-x: hidden;
     }
 
     .home-container {
@@ -53,7 +54,7 @@
     }
 
     .main-title {
-      font-size: 32px;
+      font-size: 48px;
       font-weight: 300;
       margin-bottom: 30px;
       text-align: center;
@@ -66,23 +67,23 @@
     }
 
     .profile-picture {
-      width: 180px;
-      height: 180px;
+      width: 300px;
+      height: 300px;
       border-radius: 50%;
       object-fit: cover;
       border: none;
     }
 
     .profile-picture-placeholder {
-      width: 180px;
-      height: 180px;
+      width: 300px;
+      height: 300px;
       border-radius: 50%;
       background-color: #dbdbdb;
       border: none;
     }
 
     .subtitle {
-      font-size: 18px;
+      font-size: 32px;
       font-weight: 400;
       margin-bottom: 30px;
       text-align: center;
@@ -90,8 +91,8 @@
     }
 
     .time-display {
-      font-size: 20px;
-      font-weight: 500;
+      font-size: 32px;
+      font-weight: 700;
       margin-bottom: 40px;
       text-align: center;
       color: #262626;
@@ -106,24 +107,24 @@
     }
 
     .action-button {
-      background-color: #0095f6;
-      color: white;
       border: none;
       border-radius: 8px;
       padding: 12px 24px;
-      font-size: 14px;
+      font-size: 18px;
       font-weight: 600;
       cursor: pointer;
-      transition: background-color 0.2s;
+      transition: opacity 0.2s, transform 0.1s;
       width: 100%;
     }
 
     .action-button:hover:not(:disabled) {
-      background-color: #1877f2;
+      opacity: 0.85;
+      transform: translateY(-1px);
     }
 
     .action-button:active:not(:disabled) {
-      background-color: #0064d6;
+      opacity: 0.75;
+      transform: translateY(0);
     }
 
     .action-button:disabled {
@@ -153,6 +154,194 @@
 
     .link-separator {
       color: #8e8e8e;
+    }
+
+    .warning-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+
+    .warning-modal {
+      background-color: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 428px;
+      width: 100%;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .warning-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+
+    .warning-header > div:first-child {
+      flex: 1;
+    }
+
+    .warning-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+      color: #262626;
+    }
+
+    .warning-action-name {
+      font-size: 14px;
+      font-weight: 500;
+      margin: 0;
+      color: #8e8e8e;
+    }
+
+    .warning-info-icon {
+      background: none;
+      border: none;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px 8px;
+      border-radius: 4px;
+      transition: background-color 0.2s;
+      line-height: 1;
+    }
+
+    .warning-info-icon:hover {
+      background-color: #f0f0f0;
+    }
+
+    .warning-message {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #262626;
+      margin: 0 0 16px 0;
+    }
+
+    .warning-message-small {
+      font-size: 12px;
+      color: #8e8e8e;
+    }
+
+    .warning-minutes-info {
+      background-color: #fafafa;
+      border: 1px solid #dbdbdb;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 0 0 24px 0;
+    }
+
+    .warning-minutes-text {
+      font-size: 14px;
+      line-height: 1.5;
+      color: #262626;
+      margin: 0;
+    }
+
+    .warning-minutes-text strong {
+      font-weight: 600;
+      color: #0095f6;
+    }
+
+    .warning-metadata {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin: 0 0 16px 0;
+      padding: 12px;
+      background-color: #fafafa;
+      border-radius: 6px;
+      border: 1px solid #dbdbdb;
+    }
+
+    .warning-metadata-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+    }
+
+    .warning-metadata-label {
+      color: #8e8e8e;
+      font-weight: 500;
+    }
+
+    .warning-metadata-value {
+      font-weight: 600;
+      color: #8e8e8e;
+    }
+
+    .warning-metadata-value.value-true {
+      color: #42b883;
+    }
+
+    .warning-metadata-value.value-false {
+      color: #8e8e8e;
+    }
+
+    .warning-json-details {
+      margin: 0 0 16px 0;
+      padding: 12px;
+      background-color: #f8f8f8;
+      border: 1px solid #dbdbdb;
+      border-radius: 6px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+
+    .warning-json-content {
+      margin: 0;
+      font-size: 11px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+      color: #262626;
+      line-height: 1.4;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+
+    .warning-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: flex-end;
+    }
+
+    .warning-button {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+
+    .warning-button:hover {
+      opacity: 0.8;
+    }
+
+    .warning-button-cancel {
+      background-color: #dbdbdb;
+      color: #262626;
+    }
+
+    .warning-button-confirm {
+      background-color: #0095f6;
+      color: white;
+    }
+
+    .warning-button-confirm:disabled {
+      background-color: #dbdbdb;
+      color: #8e8e8e;
+      cursor: not-allowed;
+      opacity: 0.6;
     }
   </style>
 </head>
@@ -184,22 +373,56 @@
         + 0 minutes
       </div>
 
-      <div class="buttons-container">
-        <button class="action-button" data-action="skipped a meal!" data-minutes="30">
-          skipped a meal!
-        </button>
-        <button class="action-button" data-action="skipped a drink!" data-minutes="15">
-          skipped a drink!
-        </button>
-        <button class="action-button" data-action="went running!" data-minutes="45">
-          went running!
-        </button>
+      <div class="buttons-container" id="buttons-container">
+        <!-- Buttons will be dynamically generated from button-actions.json -->
       </div>
 
       <div class="footer-links">
         <button class="link-button" disabled>Log out</button>
         <span class="link-separator">•</span>
         <button class="link-button" disabled>Edit profile</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Warning Modal -->
+  <div id="warning-overlay" class="warning-overlay" style="display: none;">
+    <div class="warning-modal" onclick="event.stopPropagation()">
+      <div class="warning-header">
+        <div>
+          <h3 class="warning-title" id="warning-title">Confirm Action</h3>
+          <p class="warning-action-name" id="warning-action-name"></p>
+        </div>
+        <button class="warning-info-icon" id="warning-info-icon" onclick="toggleJsonDetails()" title="Show action details">
+          ℹ️
+        </button>
+      </div>
+      <p class="warning-message" id="warning-message" style="display: none;"></p>
+      <div class="warning-minutes-info">
+        <p class="warning-minutes-text" id="warning-minutes-text">
+          This action will add <strong id="warning-minutes-value">0</strong> minute
+        </p>
+      </div>
+      <div class="warning-metadata" id="warning-metadata" style="display: none;">
+        <div class="warning-metadata-item">
+          <span class="warning-metadata-label">Is repeatable:</span>
+          <span class="warning-metadata-value" id="warning-repeatable-value">No</span>
+        </div>
+        <div class="warning-metadata-item">
+          <span class="warning-metadata-label">Must be logged at end of day:</span>
+          <span class="warning-metadata-value" id="warning-end-of-day-value">No</span>
+        </div>
+      </div>
+      <div class="warning-json-details" id="warning-json-details" style="display: none;">
+        <pre class="warning-json-content" id="warning-json-content"></pre>
+      </div>
+      <div class="warning-actions">
+        <button class="warning-button warning-button-cancel" onclick="closeWarning()" id="warning-cancel-btn">
+          Cancel
+        </button>
+        <button class="warning-button warning-button-confirm" id="warning-confirm-btn">
+          Continue
+        </button>
       </div>
     </div>
   </div>
@@ -213,12 +436,11 @@
       if (placeholder) placeholder.style.display = 'block';
     }
 
-    // Button actions to minutes mapping
-    const BUTTON_MINUTES = {
-      'skipped a meal!': 30,
-      'skipped a drink!': 15,
-      'went running!': 45,
-    };
+    // Button actions configuration - loaded from JSON file
+    let buttonActions = [];
+    let BUTTON_MINUTES = {};
+    let pendingAction = null; // Store action pending warning confirmation
+    let actionsTakenToday = new Set(); // Track actions taken today
 
     // State - resets on page reload
     let totalMinutes = 0;
@@ -236,16 +458,16 @@
     function formatTimeDisplay(timeData) {
       const parts = [];
       if (timeData.days > 0) {
-        parts.push(`${timeData.days} day${timeData.days !== 1 ? 's' : ''}`);
+        parts.push(`${timeData.days} ${timeData.days !== 1 ? 'dys' : 'dy'}`);
       }
       if (timeData.hours > 0) {
-        parts.push(`${timeData.hours} hour${timeData.hours !== 1 ? 's' : ''}`);
+        parts.push(`${timeData.hours} hrs`);
       }
       if (timeData.minutes > 0) {
-        parts.push(`${timeData.minutes} minute${timeData.minutes !== 1 ? 's' : ''}`);
+        parts.push(`${timeData.minutes} mins`);
       }
       if (parts.length === 0) {
-        return '+ 0 minutes';
+        return '+ 0 mins';
       }
       return '+ ' + parts.join(' ');
     }
@@ -257,38 +479,543 @@
       timeDisplay.textContent = formatTimeDisplay(timeData);
     }
 
+    // Toggle JSON details
+    let showJsonDetails = false;
+    function toggleJsonDetails() {
+      showJsonDetails = !showJsonDetails;
+      const jsonDetails = document.getElementById('warning-json-details');
+      jsonDetails.style.display = showJsonDetails ? 'block' : 'none';
+    }
+
+    // Show warning modal
+    function showWarning(action) {
+      const overlay = document.getElementById('warning-overlay');
+      const title = document.getElementById('warning-title');
+      const message = document.getElementById('warning-message');
+      const minutesText = document.getElementById('warning-minutes-text');
+      const minutesValue = document.getElementById('warning-minutes-value');
+      const confirmBtn = document.getElementById('warning-confirm-btn');
+      const metadata = document.getElementById('warning-metadata');
+      const repeatableValue = document.getElementById('warning-repeatable-value');
+      const endOfDayValue = document.getElementById('warning-end-of-day-value');
+      const jsonContent = document.getElementById('warning-json-content');
+      const actionName = document.getElementById('warning-action-name');
+      
+      // Check if action was taken today AND if it's not repeatable
+      const isRepeatable = action['is-repeatable-daily'] || false;
+      const wasTakenToday = actionsTakenToday.has(action.text);
+      const isTaken = wasTakenToday && !isRepeatable;
+      
+      // Check if a similar action was taken today (for non-repeatable actions)
+      let similarActionTaken = null;
+      if (!isRepeatable && action['similar-to'] && Array.isArray(action['similar-to'])) {
+        for (const similarAction of action['similar-to']) {
+          if (actionsTakenToday.has(similarAction)) {
+            similarActionTaken = similarAction;
+            break;
+          }
+        }
+      }
+      
+      // Action is disabled if it's taken OR if a similar action was taken (for non-repeatable)
+      const isDisabled = isTaken || (similarActionTaken !== null && !isRepeatable);
+      
+      // Set action name
+      if (actionName) {
+        actionName.textContent = action.text;
+      }
+      
+      // Set title based on whether there's a warning or if it's taken
+      if (isTaken) {
+        title.textContent = 'Cannot Repeat';
+        message.textContent = 'This action has already been logged today. You can log it again after midnight in your local timezone.';
+        message.style.display = 'block';
+        message.className = 'warning-message warning-message-small';
+      } else if (similarActionTaken) {
+        title.textContent = 'Similar Action Already Logged';
+        message.textContent = `A similar action ("${similarActionTaken}") has already been logged today. Since this action is not repeatable, you cannot log it until after midnight in your local timezone.`;
+        message.style.display = 'block';
+        message.className = 'warning-message warning-message-small';
+      } else if (action.warning) {
+        title.textContent = '⚠️ Warning';
+        message.textContent = action.warning;
+        message.style.display = 'block';
+        message.className = 'warning-message';
+      } else {
+        title.textContent = 'Confirm Action';
+        message.style.display = 'none';
+      }
+      
+      // Set minutes text
+      const minutes = action.minutes || 0;
+      minutesValue.textContent = minutes;
+      const minutesTextFull = `This action will add <strong>${minutes}</strong> minute${minutes !== 1 ? 's' : ''}`;
+      minutesText.innerHTML = minutesTextFull;
+      
+      // Set metadata
+      const mustBeLoggedAtEndOfDay = action['must-be-logged-at-end-of-day'] || false;
+      repeatableValue.textContent = isRepeatable ? 'Yes' : 'No';
+      repeatableValue.className = `warning-metadata-value ${isRepeatable ? 'value-true' : 'value-false'}`;
+      endOfDayValue.textContent = mustBeLoggedAtEndOfDay ? 'Yes' : 'No';
+      endOfDayValue.className = `warning-metadata-value ${mustBeLoggedAtEndOfDay ? 'value-true' : 'value-false'}`;
+      metadata.style.display = 'flex';
+      
+      // Set JSON content
+      jsonContent.textContent = JSON.stringify(action, null, 2);
+      showJsonDetails = false;
+      document.getElementById('warning-json-details').style.display = 'none';
+      
+      // Enable/disable confirm button based on whether action is disabled
+      confirmBtn.disabled = isDisabled;
+      if (isDisabled) {
+        confirmBtn.style.opacity = '0.6';
+        confirmBtn.style.cursor = 'not-allowed';
+      } else {
+        confirmBtn.style.opacity = '1';
+        confirmBtn.style.cursor = 'pointer';
+      }
+      
+      overlay.style.display = 'flex';
+      pendingAction = action;
+      
+      // Update cancel button text
+      const cancelBtn = document.getElementById('warning-cancel-btn');
+      if (cancelBtn) {
+        cancelBtn.textContent = isDisabled ? 'Close' : 'Cancel';
+      }
+      
+      // Update confirm button to handle the action
+      confirmBtn.onclick = function() {
+        if (!isDisabled) {
+          const actionToAdd = pendingAction;
+          closeWarning();
+          if (actionToAdd) {
+            addTimeFromAction(actionToAdd);
+            pendingAction = null;
+          }
+        }
+      };
+    }
+
+    // Close warning modal
+    function closeWarning() {
+      const overlay = document.getElementById('warning-overlay');
+      overlay.style.display = 'none';
+      pendingAction = null;
+      showJsonDetails = false;
+      document.getElementById('warning-json-details').style.display = 'none';
+    }
+
+    // Close warning when clicking overlay
+    document.getElementById('warning-overlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeWarning();
+      }
+    });
+
+    // Animate time count up
+    function animateTimeCount(startMinutes, endMinutes, onComplete) {
+      const duration = 1500; // Total animation duration in ms
+      const startTime = Date.now();
+      const totalChange = endMinutes - startMinutes;
+      const timeDisplay = document.getElementById('time-display');
+      
+      const animate = () => {
+        const elapsed = Date.now() - startTime;
+        const progress = Math.min(elapsed / duration, 1);
+        
+        // Ease out cubic for slowing towards the end
+        const easedProgress = 1 - Math.pow(1 - progress, 3);
+        
+        const currentMinutes = Math.floor(startMinutes + totalChange * easedProgress);
+        
+        // Convert to days, hours, minutes
+        const timeData = minutesToDaysHoursMinutes(currentMinutes);
+        timeDisplay.textContent = formatTimeDisplay(timeData);
+        
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          if (onComplete) onComplete();
+        }
+      };
+      
+      requestAnimationFrame(animate);
+    }
+
+    // Add time from action
+    function addTimeFromAction(action) {
+      const minutesToAdd = action.minutes;
+      if (isNaN(minutesToAdd)) return;
+
+      // Scroll to top after confirmation
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      // Get current total minutes
+      const currentTotal = totalMinutes;
+      const targetTotal = totalMinutes + minutesToAdd;
+      
+      // Animate counting up
+      animateTimeCount(currentTotal, targetTotal, () => {
+        // After animation, actually update the total
+        totalMinutes = targetTotal;
+        updateTimeDisplay();
+        
+        // Track that this action was taken (for static HTML - resets on page reload)
+        actionsTakenToday.add(action.text);
+        renderButtons(); // Re-render to update button states
+      });
+    }
+
     // Handle button clicks
     function handleButtonClick(event) {
       const button = event.target;
-      const minutesToAdd = parseInt(button.getAttribute('data-minutes'), 10);
+      const actionText = button.getAttribute('data-action');
       
-      if (isNaN(minutesToAdd)) return;
+      // Find the action object
+      const action = buttonActions.find(a => a.text === actionText);
+      if (!action) return;
 
-      // Disable button temporarily for visual feedback
-      button.disabled = true;
-      
-      // Add minutes
-      totalMinutes += minutesToAdd;
-      updateTimeDisplay();
-
-      // Re-enable button after a short delay
-      setTimeout(() => {
-        button.disabled = false;
-      }, 300);
+      // Show confirmation modal for all actions
+      // Note: isTaken logic is handled in showWarning based on repeatability
+      showWarning(action);
     }
+
+    // Load button actions (hard-coded to avoid CORS issues)
+    function loadButtonActions() {
+      // Hard-coded button actions from button-actions.json
+      const actionsData = [
+        {
+          "text": "skipped a drink!",
+          "minutes": 22,
+          "similar-to": ["skipped two drinks!", "avoided stress drinking!"],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Each skipped drink independently reduces risk. If alcohol dependence is possible, abrupt cessation can be dangerous (withdrawal risk); seek medical guidance."
+        },
+        {
+          "text": "fasted 12+ hours!",
+          "minutes": 15,
+          "similar-to": ["fasted 14+ hours!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you fasted for 12+ consecutive hours (e.g., 8pm to 8am). Time-restricted eating benefits are studied as a sustained daily pattern over weeks or months. Longer or repeated fasting within the same day does not add additional benefit. Not appropriate for everyone (e.g., pregnancy, eating disorder history, or glucose-lowering medications)."
+        },
+        {
+          "text": "fasted 14+ hours!",
+          "minutes": 30,
+          "similar-to": ["fasted 12+ hours!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you fasted for 14+ consecutive hours (e.g., 6pm to 8am). Time-restricted eating benefits are studied as a sustained daily pattern over weeks or months. Longer or repeated fasting within the same day does not add additional benefit. Not appropriate for everyone (e.g., pregnancy, eating disorder history, or glucose-lowering medications)."
+        },
+        {
+          "text": "skipped processed meat!",
+          "minutes": 15,
+          "similar-to": ["skipped red meat!"],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Each avoided serving independently reduces exposure; benefits are proportional to long-term reduction."
+        },
+        {
+          "text": "skipped red meat!",
+          "minutes": 30,
+          "similar-to": ["skipped processed meat!"],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Each avoided serving independently reduces exposure; benefits are proportional to long-term reduction."
+        },
+        {
+          "text": "five fruits / vegetables!",
+          "minutes": 90,
+          "similar-to": [],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you ate five or more servings of fruits and vegetables today. Mortality-risk reductions in large studies tend to plateau around ~5 servings per day; additional servings may still be healthy but add smaller marginal longevity benefit."
+        },
+        {
+          "text": "ate some nuts!",
+          "minutes": 45,
+          "similar-to": [],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Benefits are associated with regular moderate intake (about 1-2 oz per day); multiple servings in the same day do not proportionally increase longevity benefit. Avoid if allergic."
+        },
+        {
+          "text": "ate some fish!",
+          "minutes": 30,
+          "similar-to": [],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Benefits are linked to regular intake over time. More is not always better; follow mercury guidance and favor low-mercury species (e.g., salmon, sardines, cod)."
+        },
+        {
+          "text": "walked for an hour!",
+          "minutes": 60,
+          "similar-to": ["went for a walk!"],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": 30,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Additional walking the same day is beneficial but shows diminishing returns; each extra session tends to add less longevity benefit than the first."
+        },
+        {
+          "text": "got some exercise!",
+          "minutes": 90,
+          "similar-to": ["went for a run!"],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": 45,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Only counts if you did 20–30 minutes of moderate exercise (e.g., brisk walking, cycling, swimming). Exercise benefits follow a dose–response curve with diminishing returns; additional sessions in the same day add benefit but less than the first. Increase volume gradually."
+        },
+        {
+          "text": "went for a run!",
+          "minutes": 120,
+          "similar-to": ["got some exercise!"],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": 60,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Multiple vigorous sessions in one day provide diminishing returns and can increase injury risk if not conditioned; recovery matters."
+        },
+        {
+          "text": "meditated!",
+          "minutes": 60,
+          "similar-to": [],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Represents a whole-day stress state. Additional stress-management actions the same day support this state but do not multiply the benefit."
+        },
+        {
+          "text": "went for a walk!",
+          "minutes": 20,
+          "similar-to": ["walked for an hour!"],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": 10,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Only counts for a 20+ minute low-intensity walk for stress relief. Additional low-intensity walks can help but typically show diminishing returns as total daily activity accumulates."
+        },
+        {
+          "text": "slept 7+ hours!",
+          "minutes": 45,
+          "similar-to": ["avoided short sleep!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you slept 7-8 hours. Adults are generally recommended to get 7+ hours regularly; persistent short sleep is linked to adverse outcomes. If snoring/apnea/insomnia is present, address that rather than only increasing time in bed."
+        },
+        {
+          "text": "avoided short sleep!",
+          "minutes": 90,
+          "similar-to": ["slept 7+ hours!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you avoided sleeping under 6 hours. Chronic short sleep (<7 hours) is associated with health risks; focus on sustainable sleep habits and evaluate possible sleep disorders if persistent."
+        },
+        {
+          "text": "spent time with friends!",
+          "minutes": 75,
+          "similar-to": ["had a good talk!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": null
+        },
+        {
+          "text": "skipped a short drive!",
+          "minutes": 1,
+          "similar-to": [],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Only counts for in-town, non-freeway, round trip drives that you skipped."
+        },
+        {
+          "text": "skipped a long drive!",
+          "minutes": 7,
+          "similar-to": [],
+          "is-repeatable-daily": true,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Only counts for out-of-town drives with freeway, round trip that you skipped."
+        },
+        {
+          "text": "kept sleep schedule!",
+          "minutes": 20,
+          "similar-to": ["avoided doomscrolling!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you maintained a consistent sleep schedule (similar bed/wake times)."
+        },
+        {
+          "text": "ended work on time!",
+          "minutes": 25,
+          "similar-to": ["avoided work messages!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you ended work at a predictable time and stuck to it."
+        },
+        {
+          "text": "had a good talk!",
+          "minutes": 30,
+          "similar-to": ["spent time with friends!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Only counts if you had a meaningful conversation with a trusted person."
+        },
+        {
+          "text": "spent time outdoors!",
+          "minutes": 15,
+          "similar-to": [],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Only counts if you spent time outdoors during daylight. Use sun protection as appropriate for skin type/location; avoid unsafe heat/air quality."
+        },
+        {
+          "text": "avoided doomscrolling!",
+          "minutes": 20,
+          "similar-to": ["kept sleep schedule!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you avoided late-night doomscrolling (excessive social media/news consumption before bed)."
+        },
+        {
+          "text": "practiced stress relief!",
+          "minutes": 20,
+          "similar-to": ["had quiet rest!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": false,
+          "warning": "Only counts if you practiced a stress-regulation technique that reduced rumination (e.g., meditation, breathing exercises, journaling)."
+        },
+        {
+          "text": "avoided stress eating!",
+          "minutes": 20,
+          "similar-to": [],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you avoided stress eating or binge snacking. If binge eating is frequent or feels out of control, evidence-based support (therapy/medical) is more effective than willpower alone."
+        },
+        {
+          "text": "didn't freak out!",
+          "minutes": 25,
+          "similar-to": ["avoided urgency mode!"],
+          "is-repeatable-daily": false,
+          "reduces-after-first-time-to": null,
+          "must-be-logged-at-end-of-day": true,
+          "warning": "Only counts if you maintained a sense of control over the day's schedule (planned breaks, predictable timing, not constantly reactive)."
+        }
+      ];
+      
+      // Sort actions by minutes (ascending - least to most)
+      buttonActions = actionsData.sort((a, b) => (a.minutes || 0) - (b.minutes || 0));
+      
+      console.log(`Loaded ${buttonActions.length} button actions (hard-coded)`);
+      
+      // Build BUTTON_MINUTES object for backward compatibility
+      BUTTON_MINUTES = {};
+      buttonActions.forEach(action => {
+        BUTTON_MINUTES[action.text] = action.minutes;
+      });
+
+      // Render buttons
+      renderButtons();
+    }
+
+    // Render buttons dynamically
+    function renderButtons() {
+      const container = document.getElementById('buttons-container');
+      if (!container) return;
+
+      // Pastel rainbow colors (subtle)
+      const pastelColors = [
+        '#F5D0D4', // Subtle pink
+        '#F5E4D0', // Subtle peach
+        '#F5F5D0', // Subtle yellow
+        '#D0F5DD', // Subtle mint
+        '#D0E4F5', // Subtle blue
+        '#E4D0F5', // Subtle lavender
+      ];
+
+      container.innerHTML = '';
+      
+      if (buttonActions.length === 0) {
+        console.warn('No button actions to display');
+        return;
+      }
+      
+      console.log(`Rendering ${buttonActions.length} buttons`);
+      
+      buttonActions.forEach((action, index) => {
+        const button = document.createElement('button');
+        // Only gray out if action was taken today AND it's not repeatable
+        const isRepeatable = action['is-repeatable-daily'] || false;
+        const wasTakenToday = actionsTakenToday.has(action.text);
+        const isTaken = wasTakenToday && !isRepeatable;
+        
+        // Check if a similar action was taken today (for non-repeatable actions)
+        let similarActionTaken = null;
+        if (!isRepeatable && action['similar-to'] && Array.isArray(action['similar-to'])) {
+          for (const similarAction of action['similar-to']) {
+            if (actionsTakenToday.has(similarAction)) {
+              similarActionTaken = similarAction;
+              break;
+            }
+          }
+        }
+        
+        // Button is gray if taken OR if similar action was taken (for non-repeatable)
+        const isGrayed = isTaken || (similarActionTaken !== null && !isRepeatable);
+        
+        // Get pastel color based on index (cycles through colors)
+        const colorIndex = index % pastelColors.length;
+        const buttonColor = pastelColors[colorIndex];
+        
+        button.className = isGrayed ? 'action-button action-button-taken' : 'action-button';
+        button.setAttribute('data-action', action.text);
+        button.setAttribute('data-minutes', action.minutes);
+        button.textContent = `${action.text} (+${action.minutes})`;
+        if (!isGrayed) {
+          button.style.backgroundColor = buttonColor;
+          button.style.color = '#262626';
+        }
+        button.addEventListener('click', handleButtonClick);
+        container.appendChild(button);
+      });
+    }
+    
 
     // Initialize - run immediately and also on DOMContentLoaded for safety
     function init() {
-      // Attach click handlers to all action buttons
-      const buttons = document.querySelectorAll('.action-button');
-      buttons.forEach(button => {
-        button.addEventListener('click', handleButtonClick);
-      });
+      // Ensure page starts at top
+      window.scrollTo(0, 0);
+      
+      // Load button actions first
+      loadButtonActions();
 
       // Initial time display
       updateTimeDisplay();
     }
 
+    // Ensure page starts at top on load
+    window.addEventListener('load', function() {
+      window.scrollTo(0, 0);
+    });
+    
     // Run when DOM is ready
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', init);

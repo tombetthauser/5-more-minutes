@@ -16,6 +16,8 @@ A full-stack web application built with React (Vite), Flask, and SQLite, designe
 │   ├── gunicorn_config.py
 │   ├── 5-more-minutes.service
 │   └── cloudflared.service
+├── button-actions.json  # Centralized button actions configuration
+├── index.html          # Static HTML demo for GitHub Pages
 └── README.md
 ```
 
@@ -25,9 +27,17 @@ A full-stack web application built with React (Vite), Flask, and SQLite, designe
 - User authentication (login/register)
 - Profile management with image uploads
 - Time tracking with action buttons
+- Dynamic button actions loaded from `button-actions.json`
+- Action repeatability and similarity tracking
+- Timezone-aware daily action limits
+- Enhanced confirmation modals with warnings and metadata
+- Animated time count-up on action confirmation
+- Pastel rainbow button styling
+- Administrative user management page (`/users`)
 - SQLite database for data persistence
 - Production-ready Flask server with SPA fallback
 - Cloudflare Tunnel integration for secure access
+- Static HTML demo for GitHub Pages
 
 ## Local Development
 
@@ -162,8 +172,11 @@ Visit `http://127.0.0.1:5000` to see the production build served by Flask.
 3. **Transfer the built static files:**
    ```bash
    # The static files should already be in backend/static/ after build
-   # Just make sure they're included when transferring
+   # Make sure button-actions.json is also transferred (it's in the root directory)
+   # When using scp/rsync, ensure the entire project directory is transferred
    ```
+   
+   **Important:** Make sure `button-actions.json` is included in the transfer. This file is required for the app to function properly.
 
 ### Step 3: Set Up Python Environment
 
@@ -337,8 +350,42 @@ chmod 755 /home/pi/5-more-minutes/backend/uploads
 - Cloudflare Tunnel exposes it securely
 - Production database in `backend/app.db`
 
+## Configuration
+
+### Button Actions Configuration
+
+Button actions and their minute values are configured in `button-actions.json` in the root directory. This file is used by:
+
+- **Static HTML demo** (`index.html`) - Loads directly from the JSON file
+- **React app** - Fetches from `/api/button-actions` endpoint
+- **Flask backend** - Validates actions against this file
+
+To add, remove, or modify button actions, simply edit `button-actions.json`:
+
+```json
+{
+  "actions": [
+    {
+      "text": "skipped a meal!",
+      "minutes": 30
+    },
+    {
+      "text": "skipped a drink!",
+      "minutes": 15
+    },
+    {
+      "text": "went running!",
+      "minutes": 45
+    }
+  ]
+}
+```
+
+Changes will be reflected immediately when the app is accessed (no restart needed for Flask, just refresh the browser).
+
 ## API Endpoints
 
+- `GET /api/button-actions` - Get button actions configuration
 - `POST /api/auth/register` - Register new user
 - `POST /api/auth/login` - Login user
 - `POST /api/auth/logout` - Logout user
@@ -347,6 +394,7 @@ chmod 755 /home/pi/5-more-minutes/backend/uploads
 - `GET /api/time` - Get current time data
 - `POST /api/time/add` - Add time via action
 - `GET /api/uploads/<filename>` - Serve uploaded files
+- `GET /button-actions.json` - Serve button actions JSON (for static HTML)
 
 ## GitHub Pages Static Demo
 
@@ -557,4 +605,75 @@ Fantastic! Using the account I just created for Daniel and the image I uploaded 
    - Added "GitHub Pages Static Demo" section to README
    - Included instructions for setting up GitHub Pages
    - Documented that the static version is self-contained and doesn't require backend
+
+---
+
+## Major Feature Restructuring Summary
+
+This section summarizes the major prompts that restructured the app beyond minor styling changes.
+
+### Centralized Button Actions Configuration
+**Key Change:** Moved from hardcoded button definitions to a centralized `button-actions.json` file.
+
+- Created `button-actions.json` in the root directory as the single source of truth
+- Actions are dynamically loaded by both the React app and static HTML demo
+- Added `/api/button-actions` endpoint to serve the JSON configuration
+- Enables easy addition/modification of actions without code changes
+
+### Action Tracking and Repeatability System
+**Key Change:** Implemented sophisticated action tracking with timezone-aware daily limits and similarity detection.
+
+- Added timestamp tracking for all actions in the database
+- Implemented timezone-aware "today" calculation (actions reset at midnight in user's local timezone)
+- Added `is-repeatable-daily` flag to control whether actions can be repeated
+- Implemented `similar-to` array to prevent duplicate similar actions (e.g., "fasted 12+ hours" and "fasted 14+ hours")
+- Actions are grayed out and disabled if already taken (for non-repeatable) or if a similar action was taken
+- Added `/api/actions/today` endpoint that accepts timezone offset for accurate daily tracking
+
+### Enhanced Confirmation Modal System
+**Key Change:** Transformed simple button clicks into a comprehensive confirmation system with warnings and metadata.
+
+- Modal now appears for all actions (not just those with warnings)
+- Displays action name, minutes to be added, and detailed warnings
+- Shows metadata: `is-repeatable-daily` and `must-be-logged-at-end-of-day` flags
+- Includes collapsible JSON details section for full action configuration
+- Disables confirmation button if action cannot be repeated
+- Provides clear explanations when actions are disabled due to similarity or repeatability rules
+
+### Time Display Animation and Formatting
+**Key Change:** Added animated count-up effect and improved time formatting.
+
+- Implemented smooth count-up animation when actions are confirmed
+- Animation scrolls page to top and counts minutes incrementally
+- Uses ease-out cubic easing for natural deceleration
+- Changed time format to abbreviations: "dy"/"dys", "hrs", "mins"
+- Increased font size and weight for better visibility
+
+### Button Styling and Organization
+**Key Change:** Enhanced visual design with pastel colors and improved organization.
+
+- Implemented pastel rainbow color scheme (6 colors cycling through buttons)
+- Buttons sorted by minutes (ascending: lowest at top, highest at bottom)
+- Added minutes display in button text: "action name (+X)"
+- Increased button text size for better readability
+- All minutes rounded to whole numbers
+
+### Administrative Features
+**Key Change:** Added hidden administrative page for user management.
+
+- Created `/users` route (hidden, not in main navigation)
+- Displays all registered users with profile information
+- Shows total accumulated minutes for each user
+- Collapsible sections showing all actions for each user in reverse chronological order
+- Reset functionality to clear all actions and reset minutes for individual users
+- Added `/api/users`, `/api/users/<id>/actions`, and `/api/users/<id>/reset` endpoints
+
+### Static Demo Enhancements
+**Key Change:** Updated static HTML demo to match all production features.
+
+- Static demo now loads `button-actions.json` dynamically
+- Implements all modal features (warnings, metadata, JSON details)
+- Includes action tracking and repeatability logic (resets on page reload)
+- Matches production UI with pastel colors, sorting, and formatting
+- Fully functional demo without backend dependency
 

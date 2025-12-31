@@ -3,6 +3,7 @@ import sqlite3
 import hashlib
 import secrets
 import time
+import json
 from datetime import datetime
 from pathlib import Path
 from flask import Flask, request, jsonify, send_from_directory, session
@@ -19,17 +20,34 @@ app.config['SESSION_COOKIE_SECURE'] = False  # Set to True in production with HT
 
 # Configuration
 BASE_DIR = Path(__file__).parent
+PROJECT_ROOT = BASE_DIR.parent
 DATABASE = BASE_DIR / 'app.db'
 UPLOAD_FOLDER = BASE_DIR / 'uploads'
 UPLOAD_FOLDER.mkdir(exist_ok=True)
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+BUTTON_ACTIONS_FILE = PROJECT_ROOT / 'button-actions.json'
 
-# Button actions to minutes mapping
-BUTTON_MINUTES = {
-    'skipped a meal!': 30,
-    'skipped a drink!': 15,
-    'went running!': 45,
-}
+# Load button actions from JSON file
+def load_button_actions():
+    """Load button actions from JSON file"""
+    try:
+        if BUTTON_ACTIONS_FILE.exists():
+            with open(BUTTON_ACTIONS_FILE, 'r') as f:
+                data = json.load(f)
+                return {action['text']: action['minutes'] for action in data.get('actions', [])}
+    except Exception as e:
+        print(f"Error loading button actions: {e}")
+    
+    # Fallback to default actions
+    return {
+        'skipped a meal!': 30,
+        'skipped a drink!': 15,
+        'went running!': 45,
+    }
+
+def get_button_minutes():
+    """Get current button actions mapping"""
+    return load_button_actions()
 
 
 def get_db():
@@ -357,6 +375,105 @@ def get_time():
     return jsonify(time_data), 200
 
 
+@app.route('/api/actions/today', methods=['GET'])
+def get_today_actions():
+    """Get actions taken today (based on user's local timezone)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    try:
+        # Get timezone offset from query parameter (in minutes)
+        timezone_offset = request.args.get('timezone_offset', type=int)
+        if timezone_offset is None:
+            return jsonify({'error': 'Timezone offset required'}), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Calculate today's start in UTC based on user's timezone
+        # timezone_offset is in minutes (e.g., -300 for EST which is UTC-5)
+        # We need to find actions that occurred after midnight in user's local time
+        # SQLite stores timestamps in UTC, so we need to adjust
+        
+        # Get all actions for this user
+        cursor.execute('''
+            SELECT action, created_at
+            FROM time_actions
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        ''', (user_id,))
+        
+        actions = cursor.fetchall()
+        conn.close()
+
+        # Filter actions that occurred today in user's local timezone
+        from datetime import datetime, timedelta, timezone
+        
+        # Get current time in user's timezone
+        # timezone_offset is minutes from UTC (negative for west of UTC, positive for east)
+        # JavaScript getTimezoneOffset() returns negative of what we need
+        user_tz = timezone(timedelta(minutes=-timezone_offset))
+        now = datetime.now(user_tz)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Convert to UTC for comparison with database timestamps
+        today_start_utc = today_start.astimezone(timezone.utc)
+        
+        actions_today = []
+        for action in actions:
+            # Parse the timestamp (SQLite stores as string in UTC)
+            try:
+                # Handle different timestamp formats
+                action_str = action['created_at']
+                if 'T' in action_str:
+                    # ISO format with or without timezone
+                    if action_str.endswith('Z'):
+                        action_str = action_str.replace('Z', '+00:00')
+                    elif '+' not in action_str and '-' not in action_str[-6:]:
+                        # Assume UTC if no timezone
+                        action_str = action_str + '+00:00'
+                    action_time = datetime.fromisoformat(action_str)
+                else:
+                    # SQLite datetime format: YYYY-MM-DD HH:MM:SS
+                    action_time = datetime.strptime(action_str, '%Y-%m-%d %H:%M:%S')
+                    # Assume UTC
+                    action_time = action_time.replace(tzinfo=timezone.utc)
+                
+                if action_time >= today_start_utc:
+                    actions_today.append(action['action'])
+            except Exception as e:
+                print(f"Error parsing timestamp {action['created_at']}: {e}")
+                continue
+
+        # Return unique actions taken today
+        return jsonify({'actions': list(set(actions_today))}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/button-actions', methods=['GET'])
+def get_button_actions():
+    """Get button actions configuration"""
+    try:
+        if BUTTON_ACTIONS_FILE.exists():
+            with open(BUTTON_ACTIONS_FILE, 'r') as f:
+                data = json.load(f)
+                return jsonify(data), 200
+    except Exception as e:
+        print(f"Error loading button actions: {e}")
+    
+    # Fallback to default actions
+    return jsonify({
+        'actions': [
+            {'text': 'skipped a meal!', 'minutes': 30, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
+            {'text': 'skipped a drink!', 'minutes': 15, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
+            {'text': 'went running!', 'minutes': 45, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False}
+        ]
+    }), 200
+
+
 @app.route('/api/time/add', methods=['POST'])
 def add_time():
     """Add time based on action"""
@@ -367,11 +484,12 @@ def add_time():
     try:
         data = request.json
         action = data.get('action')
+        button_minutes = get_button_minutes()
 
-        if action not in BUTTON_MINUTES:
+        if action not in button_minutes:
             return jsonify({'error': 'Invalid action'}), 400
 
-        minutes_to_add = BUTTON_MINUTES[action]
+        minutes_to_add = button_minutes[action]
 
         conn = get_db()
         cursor = conn.cursor()
@@ -408,6 +526,116 @@ def add_time():
 def uploaded_file(filename):
     """Serve uploaded files"""
     return send_from_directory(UPLOAD_FOLDER, filename)
+
+
+# Users listing endpoint (hidden page)
+@app.route('/api/users', methods=['GET'])
+def get_all_users():
+    """Get all users (for hidden /users page)"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, username, email, display_name, profile_picture, 
+                   total_minutes, created_at
+            FROM users
+            ORDER BY created_at DESC
+        ''')
+        users = cursor.fetchall()
+        conn.close()
+
+        users_list = []
+        for user in users:
+            users_list.append({
+                'id': user['id'],
+                'username': user['username'],
+                'email': user['email'],
+                'display_name': user['display_name'],
+                'profile_picture': user['profile_picture'],
+                'total_minutes': user['total_minutes'],
+                'created_at': user['created_at'],
+            })
+
+        return jsonify({'users': users_list}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/users/<int:user_id>/actions', methods=['GET'])
+def get_user_actions(user_id):
+    """Get all actions for a specific user"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+        cursor.execute('''
+            SELECT id, action, minutes_added, created_at
+            FROM time_actions
+            WHERE user_id = ?
+            ORDER BY created_at DESC
+        ''', (user_id,))
+        actions = cursor.fetchall()
+        conn.close()
+
+        actions_list = []
+        for action in actions:
+            actions_list.append({
+                'id': action['id'],
+                'action': action['action'],
+                'minutes_added': action['minutes_added'],
+                'created_at': action['created_at'],
+            })
+
+        return jsonify({'actions': actions_list}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/users/<int:user_id>/reset', methods=['POST'])
+def reset_user(user_id):
+    """Reset a user's actions and total minutes"""
+    try:
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Delete all actions for this user
+        cursor.execute('DELETE FROM time_actions WHERE user_id = ?', (user_id,))
+
+        # Reset total minutes to 0
+        cursor.execute('''
+            UPDATE users 
+            SET total_minutes = 0
+            WHERE id = ?
+        ''', (user_id,))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({'message': 'User reset successfully'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+# Serve button actions JSON file (for static HTML)
+@app.route('/button-actions.json')
+def serve_button_actions():
+    """Serve button actions JSON file"""
+    try:
+        if BUTTON_ACTIONS_FILE.exists():
+            return send_from_directory(PROJECT_ROOT, 'button-actions.json')
+    except Exception as e:
+        print(f"Error serving button actions: {e}")
+    
+    # Fallback response
+    return jsonify({
+        'actions': [
+            {'text': 'skipped a meal!', 'minutes': 30},
+            {'text': 'skipped a drink!', 'minutes': 15},
+            {'text': 'went running!', 'minutes': 45}
+        ]
+    }), 200
 
 
 # SPA fallback - serve index.html for all non-API routes

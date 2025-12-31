@@ -1,0 +1,330 @@
+{
+  "actions": [
+    {
+      "text": "skipped a drink!",
+      "minutes": 22,
+      "similar-to": ["skipped two drinks!", "avoided stress drinking!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Each skipped drink independently reduces risk. If alcohol dependence is possible, abrupt cessation can be dangerous (withdrawal risk); seek medical guidance."
+    },
+    {
+      "text": "fasted 12+ hours!",
+      "minutes": 15,
+      "similar-to": ["fasted 14+ hours!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you fasted for 12+ consecutive hours (e.g., 8pm to 8am). Time-restricted eating benefits are studied as a sustained daily pattern over weeks or months. Longer or repeated fasting within the same day does not add additional benefit. Not appropriate for everyone (e.g., pregnancy, eating disorder history, or glucose-lowering medications)."
+    },
+    {
+      "text": "fasted 14+ hours!",
+      "minutes": 30,
+      "similar-to": ["fasted 12+ hours!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you fasted for 14+ consecutive hours (e.g., 6pm to 8am). Time-restricted eating benefits are studied as a sustained daily pattern over weeks or months. Longer or repeated fasting within the same day does not add additional benefit. Not appropriate for everyone (e.g., pregnancy, eating disorder history, or glucose-lowering medications)."
+    },
+    {
+      "text": "skipped processed meat!",
+      "minutes": 15,
+      "similar-to": ["skipped red meat!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Each avoided serving independently reduces exposure; benefits are proportional to long-term reduction."
+    },
+    {
+      "text": "skipped red meat!",
+      "minutes": 30,
+      "similar-to": ["skipped processed meat!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Each avoided serving independently reduces exposure; benefits are proportional to long-term reduction."
+    },
+    {
+      "text": "five fruits / vegetables!",
+      "minutes": 90,
+      "similar-to": [],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you ate five or more servings of fruits and vegetables today. Mortality-risk reductions in large studies tend to plateau around ~5 servings per day; additional servings may still be healthy but add smaller marginal longevity benefit."
+    },
+    {
+      "text": "ate some nuts!",
+      "minutes": 45,
+      "similar-to": [],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Benefits are associated with regular moderate intake (about 1-2 oz per day); multiple servings in the same day do not proportionally increase longevity benefit. Avoid if allergic."
+    },
+    {
+      "text": "ate some fish!",
+      "minutes": 30,
+      "similar-to": [],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Benefits are linked to regular intake over time. More is not always better; follow mercury guidance and favor low-mercury species (e.g., salmon, sardines, cod)."
+    },
+    {
+      "text": "walked for an hour!",
+      "minutes": 60,
+      "similar-to": ["went for a walk!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": 30,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Additional walking the same day is beneficial but shows diminishing returns; each extra session tends to add less longevity benefit than the first."
+    },
+    {
+      "text": "got some exercise!",
+      "minutes": 90,
+      "similar-to": ["went for a run!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": 45,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts if you did 20–30 minutes of moderate exercise (e.g., brisk walking, cycling, swimming). Exercise benefits follow a dose–response curve with diminishing returns; additional sessions in the same day add benefit but less than the first. Increase volume gradually."
+    },
+    {
+      "text": "went for a run!",
+      "minutes": 120,
+      "similar-to": ["got some exercise!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": 60,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Multiple vigorous sessions in one day provide diminishing returns and can increase injury risk if not conditioned; recovery matters."
+    },
+    {
+      "text": "meditated!",
+      "minutes": 60,
+      "similar-to": [],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Represents a whole-day stress state. Additional stress-management actions the same day support this state but do not multiply the benefit."
+    },
+    {
+      "text": "went for a walk!",
+      "minutes": 20,
+      "similar-to": ["walked for an hour!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": 10,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts for a 20+ minute low-intensity walk for stress relief. Additional low-intensity walks can help but typically show diminishing returns as total daily activity accumulates."
+    },
+    {
+      "text": "slept 7+ hours!",
+      "minutes": 45,
+      "similar-to": ["avoided short sleep!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you slept 7-8 hours. Adults are generally recommended to get 7+ hours regularly; persistent short sleep is linked to adverse outcomes. If snoring/apnea/insomnia is present, address that rather than only increasing time in bed."
+    },
+    {
+      "text": "avoided short sleep!",
+      "minutes": 90,
+      "similar-to": ["slept 7+ hours!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you avoided sleeping under 6 hours. Chronic short sleep (<7 hours) is associated with health risks; focus on sustainable sleep habits and evaluate possible sleep disorders if persistent."
+    },
+    {
+      "text": "spent time with friends!",
+      "minutes": 75,
+      "similar-to": ["had a good talk!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": null
+    },
+    {
+      "text": "skipped a short drive!",
+      "minutes": 1,
+      "similar-to": [],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts for in-town, non-freeway, round trip drives that you skipped."
+    },
+    {
+      "text": "skipped a long drive!",
+      "minutes": 7,
+      "similar-to": [],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts for out-of-town drives with freeway, round trip that you skipped."
+    },
+    {
+      "text": "kept sleep schedule!",
+      "minutes": 20,
+      "similar-to": ["avoided doomscrolling!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you maintained a consistent sleep schedule (similar bed/wake times)."
+    },
+    {
+      "text": "ended work on time!",
+      "minutes": 25,
+      "similar-to": ["avoided work messages!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you ended work at a predictable time and stuck to it."
+    },
+    {
+      "text": "had a good talk!",
+      "minutes": 30,
+      "similar-to": ["spent time with friends!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts if you had a meaningful conversation with a trusted person."
+    },
+    {
+      "text": "spent time outdoors!",
+      "minutes": 15,
+      "similar-to": [],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts if you spent time outdoors during daylight. Use sun protection as appropriate for skin type/location; avoid unsafe heat/air quality."
+    },
+    {
+      "text": "avoided doomscrolling!",
+      "minutes": 20,
+      "similar-to": ["kept sleep schedule!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you avoided late-night doomscrolling (excessive social media/news consumption before bed)."
+    },
+    {
+      "text": "practiced stress relief!",
+      "minutes": 20,
+      "similar-to": ["had quiet rest!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts if you practiced a stress-regulation technique that reduced rumination (e.g., meditation, breathing exercises, journaling)."
+    },
+    {
+      "text": "avoided stress eating!",
+      "minutes": 20,
+      "similar-to": [],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you avoided stress eating or binge snacking. If binge eating is frequent or feels out of control, evidence-based support (therapy/medical) is more effective than willpower alone."
+    },
+    {
+      "text": "didn't freak out!",
+      "minutes": 25,
+      "similar-to": ["avoided urgency mode!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you maintained a sense of control over the day's schedule (planned breaks, predictable timing, not constantly reactive)."
+    }
+  ],
+  "unused-actions": [
+    {
+      "text": "skipped a big roadtrip!",
+      "minutes": 178,
+      "similar-to": [],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts for full-day driving each way, round trip that you skipped. Long-distance driving adds fatigue risk; if you do drive, use fatigue countermeasures (rest breaks, avoid drowsy driving, share driving)."
+    },
+    {
+      "text": "had quiet rest!",
+      "minutes": 15,
+      "similar-to": ["practiced stress relief!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Only counts if you had an unstructured period of rest without stimulation (no phone, TV, etc.)."
+    },
+    {
+      "text": "avoided work messages!",
+      "minutes": 15,
+      "similar-to": ["ended work on time!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you did not check work messages outside of planned work hours."
+    },
+    {
+      "text": "managed stress well!",
+      "minutes": 60,
+      "similar-to": [],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Best treated as a sustained pattern (weeks/months). Avoid double-counting if you also credit the specific stress actions below (sleep, boundaries, social support, etc.)."
+    },
+    {
+      "text": "avoided urgency mode!",
+      "minutes": 25,
+      "similar-to": ["didn't freak out!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you avoided working in constant urgency mode (rushing, constant fire-fighting)."
+    },
+    {
+      "text": "slept 7+ hours!",
+      "minutes": 45,
+      "similar-to": ["slept 7+ hours!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you slept at least 7 hours. Adults are generally recommended to get 7+ hours regularly; persistent short sleep is linked to adverse outcomes. If snoring/apnea/insomnia is present, address that rather than only increasing time in bed."
+    },
+    {
+      "text": "skipped a cigarette!",
+      "minutes": 30,
+      "similar-to": ["skipped a pack!"],
+      "is-repeatable-daily": true,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": false,
+      "warning": "Each avoided cigarette independently reduces harm. Nicotine withdrawal can be significant; evidence-based cessation aids (e.g., NRT/medications/support) improve safety and success."
+    },
+    {
+      "text": "skipped a pack!",
+      "minutes": 600,
+      "similar-to": ["skipped a cigarette!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you avoided smoking a full pack of cigarettes (typically 20 cigarettes). Nicotine withdrawal can be significant; evidence-based cessation aids improve safety and success."
+    },
+    {
+      "text": "skipped two drinks!",
+      "minutes": 45,
+      "similar-to": ["skipped a drink!", "avoided stress drinking!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Represents the cumulative benefit of skipping multiple drinks in a day. If alcohol dependence is possible, abrupt cessation can be dangerous (withdrawal risk). Seek medical guidance for tapering/cessation if dependence is possible."
+    },
+    {
+      "text": "avoided stress drinking!",
+      "minutes": 30,
+      "similar-to": ["skipped a drink!", "skipped two drinks!"],
+      "is-repeatable-daily": false,
+      "reduces-after-first-time-to": null,
+      "must-be-logged-at-end-of-day": true,
+      "warning": "Only counts if you avoided using alcohol specifically as a stress coping mechanism. If alcohol dependence is possible, abruptly stopping can be dangerous (withdrawal risk). Seek medical guidance for tapering/cessation if dependence is possible."
+    }
+  ]
+}

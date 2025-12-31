@@ -4,6 +4,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
 import EditProfile from './pages/EditProfile'
+import Users from './pages/Users'
 import './App.css'
 
 function App() {
@@ -88,6 +89,10 @@ function App() {
               <Navigate to="/login" replace />
             )
           }
+        />
+        <Route
+          path="/users"
+          element={<Users />}
         />
       </Routes>
     </BrowserRouter>
