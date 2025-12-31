@@ -4,7 +4,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import './Home.css'
 
 function Home({ user, onLogout }) {
-  const { currentTheme } = useTheme()
+  const { currentTheme, cycleTheme } = useTheme()
   const [timeData, setTimeData] = useState({ days: 0, hours: 0, minutes: 0 })
   const [loading, setLoading] = useState(false)
   const [buttonActions, setButtonActions] = useState([])
@@ -254,8 +254,8 @@ function Home({ user, onLogout }) {
             // Determine button style based on theme
             let buttonStyle = {}
             if (!isGrayed) {
-              if (currentTheme.id === 'dark' || currentTheme.id === 'terracotta' || currentTheme.id === 'claude') {
-                // Dark, Terracotta, and Claude themes: use theme's button colors
+              if (currentTheme.id === 'dark' || currentTheme.id === 'terracotta' || currentTheme.id === 'claude' || currentTheme.id === 'french-gray') {
+                // Dark, Terracotta, Claude, and French Gray themes: use theme's button colors
                 buttonStyle = {
                   backgroundColor: currentTheme.colors.buttonBg,
                   color: currentTheme.colors.buttonText,
@@ -374,14 +374,21 @@ function Home({ user, onLogout }) {
 
         <div className="footer-links">
           <button className="link-button" onClick={onLogout}>
-            Log out
+            Log Out
           </button>
           <span className="link-separator">•</span>
           <button
             className="link-button"
             onClick={() => navigate('/edit-profile')}
           >
-            Edit profile
+            Edit Profile
+          </button>
+          <span className="link-separator">•</span>
+          <button
+            className="link-button"
+            onClick={cycleTheme}
+          >
+            Change Colors
           </button>
         </div>
       </div>

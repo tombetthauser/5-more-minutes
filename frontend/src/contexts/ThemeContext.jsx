@@ -5,6 +5,35 @@ const ThemeContext = createContext()
 // Theme definitions - easy to add more themes by adding to this array
 const themes = [
   {
+    id: 'french-gray',
+    name: 'French Gray',
+    colors: {
+      background: '#8e8e93', // Muted French gray
+      surface: '#ffffff', // White for modals and cards
+      text: '#ffffff', // White text for contrast on gray background
+      textSecondary: '#e5e5ea', // Light gray for secondary text
+      textMuted: '#c7c7cc', // Muted gray
+      border: '#636366', // Darker gray for borders
+      buttonBg: '#ffffff', // White buttons
+      buttonText: '#1c1c1e', // Dark text on white buttons
+      buttonDisabledBg: 'transparent',
+      buttonDisabledText: '#c7c7cc',
+      buttonDisabledBorder: '#aaa',
+      primary: '#007aff', // iOS blue
+      primaryHover: '#0051d5',
+      error: '#ff3b30', // Red
+      success: '#34c759', // Green
+      warningBg: '#ffffff', // White for modals
+      warningBorder: '#636366',
+      overlay: 'rgba(0, 0, 0, 0.4)', // Dark overlay
+      placeholder: '#c7c7cc',
+      surfaceText: '#1c1c1e', // Dark text for white surfaces (modals, auth boxes)
+      plainTextLinkTextColorUnclicked: '#fff', // Light blue for contrast on gray
+      plainTextLinkTextColorClicked: '#fff', // iOS blue (slightly darker when clicked)
+      imageBorder: '5px solid #ccc',
+    }
+  },
+  {
     id: 'terracotta',
     name: 'Terracotta',
     colors: {
@@ -28,6 +57,9 @@ const themes = [
       overlay: 'rgba(0, 0, 0, 0.5)', // Dark overlay for better contrast
       placeholder: '#d4a574',
       surfaceText: '#8b3e1f', // Dark text for light surfaces (modals, auth boxes)
+      plainTextLinkTextColorUnclicked: '#6bb3ff', // Light blue for contrast on terracotta
+      plainTextLinkTextColorClicked: '#4a90e2', // Primary blue (darker when clicked)
+      imageBorder: '',
     }
   },
   {
@@ -54,6 +86,9 @@ const themes = [
       overlay: 'rgba(255, 255, 255, 0.1)',
       placeholder: '#404040',
       surfaceText: '#ffffff', // White text on dark surfaces
+      plainTextLinkTextColorUnclicked: '#0095f6', // Primary blue
+      plainTextLinkTextColorClicked: '#1877f2', // Primary hover (darker when clicked)
+      imageBorder: '',
     }
   },
   {
@@ -68,9 +103,9 @@ const themes = [
       border: '#dbdbdb',
       buttonBg: '#F5D0D4', // Pastel colors will be applied dynamically
       buttonText: '#262626',
-      buttonDisabledBg: '#dbdbdb',
+      buttonDisabledBg: 'transparent',
       buttonDisabledText: '#8e8e8e',
-      buttonDisabledBorder: 'transparent',
+      buttonDisabledBorder: '#dbdbdb',
       primary: '#0095f6',
       primaryHover: '#1877f2',
       error: '#ed4956',
@@ -80,6 +115,9 @@ const themes = [
       overlay: 'rgba(0, 0, 0, 0.5)',
       placeholder: '#dbdbdb',
       surfaceText: '#262626', // Dark text on light surfaces
+      plainTextLinkTextColorUnclicked: '#0095f6', // Primary blue
+      plainTextLinkTextColorClicked: '#1877f2', // Primary hover (darker when clicked)
+      imageBorder: '',
     }
   },
   {
@@ -106,13 +144,16 @@ const themes = [
       overlay: 'rgba(0, 0, 0, 0.3)',
       placeholder: '#d4c5b9',
       surfaceText: '#1a1a1a', // Dark text on light surfaces
+      plainTextLinkTextColorUnclicked: '#c99a5c', // Warm brown/gold primary
+      plainTextLinkTextColorClicked: '#b88a4c', // Primary hover (darker when clicked)
+      imageBorder: '',
     }
   }
 ]
 
 export function ThemeProvider({ children }) {
   const [currentThemeIndex, setCurrentThemeIndex] = useState(() => {
-    // Default to terracotta theme (index 0)
+    // Default to French gray theme (index 0)
     const saved = localStorage.getItem('themeIndex')
     return saved ? parseInt(saved, 10) : 0
   })

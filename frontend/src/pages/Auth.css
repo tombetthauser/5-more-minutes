@@ -121,10 +121,14 @@
 }
 
 .auth-link {
-  color: var(--color-primary);
+  color: var(--color-plainTextLinkTextColorUnclicked, var(--color-primary));
   text-decoration: none;
   font-weight: 600;
   transition: color 0.3s ease;
+}
+
+.auth-link:visited {
+  color: var(--color-plainTextLinkTextColorClicked, var(--color-primaryHover));
 }
 
 .auth-link:hover {
