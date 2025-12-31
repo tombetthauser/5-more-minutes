@@ -5,6 +5,7 @@ import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
 import EditProfile from './pages/EditProfile'
+import EditActions from './pages/EditActions'
 import Users from './pages/Users'
 import './App.css'
 
@@ -94,6 +95,16 @@ function App() {
             element={
               user ? (
                 <EditProfile user={user} onUpdate={setUser} />
+              ) : (
+                <Navigate to="/login" replace />
+              )
+            }
+          />
+          <Route
+            path="/edit-actions"
+            element={
+              user ? (
+                <EditActions />
               ) : (
                 <Navigate to="/login" replace />
               )

@@ -29,32 +29,63 @@ BUTTON_ACTIONS_FILE = PROJECT_ROOT / 'button-actions.json'
 
 # Load button actions from JSON file
 def load_button_actions():
-    """Load button actions from JSON file"""
+    """Load button actions from JSON file - returns full action objects"""
     try:
         if BUTTON_ACTIONS_FILE.exists():
             with open(BUTTON_ACTIONS_FILE, 'r') as f:
                 data = json.load(f)
-                return {action['text']: action['minutes'] for action in data.get('actions', [])}
+                return data.get('actions', [])
     except Exception as e:
         print(f"Error loading button actions: {e}")
     
     # Fallback to default actions
-    return {
-        'skipped a meal!': 30,
-        'skipped a drink!': 15,
-        'went running!': 45,
-    }
+    return [
+        {'text': 'skipped a meal!', 'minutes': 30, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
+        {'text': 'skipped a drink!', 'minutes': 15, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
+        {'text': 'went running!', 'minutes': 45, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False}
+    ]
+
+def get_button_minutes_dict():
+    """Get button actions as a text->minutes dict for backward compatibility"""
+    actions = load_button_actions()
+    return {action['text']: action['minutes'] for action in actions}
 
 def get_button_minutes():
     """Get current button actions mapping for the logged-in user"""
     user_id = session.get('user_id')
-    button_minutes = load_button_actions()
+    button_minutes = get_button_minutes_dict()
     
-    # Add custom actions if user is logged in
+    # Apply user-specific changes (deletions, edits, custom actions)
     if user_id:
         try:
             conn = get_db()
             cursor = conn.cursor()
+            
+            # Get deleted actions (remove from dict)
+            cursor.execute('''
+                SELECT action_text
+                FROM deleted_actions
+                WHERE user_id = ?
+            ''', (user_id,))
+            deleted_actions = cursor.fetchall()
+            for row in deleted_actions:
+                deleted_text = row['action_text']
+                if deleted_text in button_minutes:
+                    del button_minutes[deleted_text]
+            
+            # Get edited actions (overrides for default actions)
+            cursor.execute('''
+                SELECT text, minutes
+                FROM edited_actions
+                WHERE user_id = ?
+            ''', (user_id,))
+            edited_actions = cursor.fetchall()
+            
+            # Apply edits (overrides) - use edited text as key
+            for action in edited_actions:
+                button_minutes[action['text']] = action['minutes']
+            
+            # Add custom actions
             cursor.execute('''
                 SELECT text, minutes
                 FROM custom_actions
@@ -66,7 +97,7 @@ def get_button_minutes():
             for action in custom_actions:
                 button_minutes[action['text']] = action['minutes']
         except Exception as e:
-            print(f"Error loading custom actions for button minutes: {e}")
+            print(f"Error loading actions for button minutes: {e}")
     
     return button_minutes
 
@@ -122,6 +153,37 @@ def init_db():
             warning TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
+        )
+    ''')
+    
+    # Deleted actions table (user-deleted default actions)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS deleted_actions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            action_text TEXT NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            UNIQUE(user_id, action_text)
+        )
+    ''')
+    
+    # Edited actions table (user-edited default actions)
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS edited_actions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id INTEGER NOT NULL,
+            original_text TEXT NOT NULL,
+            text TEXT NOT NULL,
+            minutes INTEGER NOT NULL,
+            similar_to TEXT,
+            is_repeatable_daily INTEGER DEFAULT 1,
+            must_be_logged_at_end_of_day INTEGER DEFAULT 0,
+            warning TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users (id),
+            UNIQUE(user_id, original_text)
         )
     ''')
     
@@ -492,32 +554,50 @@ def get_today_actions():
 
 @app.route('/api/button-actions', methods=['GET'])
 def get_button_actions():
-    """Get button actions configuration"""
+    """Get button actions configuration with user-specific edits and deletions"""
     user_id = session.get('user_id')
+    
+    # Load default actions from JSON file (never modified)
+    default_actions = load_button_actions()
     actions = []
     
-    try:
-        # Load default actions from JSON file
-        if BUTTON_ACTIONS_FILE.exists():
-            with open(BUTTON_ACTIONS_FILE, 'r') as f:
-                data = json.load(f)
-                actions = data.get('actions', [])
-    except Exception as e:
-        print(f"Error loading button actions: {e}")
+    # Get user's deleted and edited actions if logged in
+    deleted_texts = set()
+    edited_actions_map = {}
     
-    # If no actions from file, use fallback
-    if not actions:
-        actions = [
-            {'text': 'skipped a meal!', 'minutes': 30, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
-            {'text': 'skipped a drink!', 'minutes': 15, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False},
-            {'text': 'went running!', 'minutes': 45, 'similar-to': [], 'is-repeatable-daily': True, 'must-be-logged-at-end-of-day': False}
-        ]
-    
-    # Add user's custom actions if logged in
     if user_id:
         try:
             conn = get_db()
             cursor = conn.cursor()
+            
+            # Get deleted actions
+            cursor.execute('''
+                SELECT action_text
+                FROM deleted_actions
+                WHERE user_id = ?
+            ''', (user_id,))
+            deleted_actions = cursor.fetchall()
+            deleted_texts = {row['action_text'] for row in deleted_actions}
+            
+            # Get edited actions
+            cursor.execute('''
+                SELECT original_text, text, minutes, similar_to, is_repeatable_daily,
+                       must_be_logged_at_end_of_day, warning
+                FROM edited_actions
+                WHERE user_id = ?
+            ''', (user_id,))
+            edited_actions = cursor.fetchall()
+            for action in edited_actions:
+                edited_actions_map[action['original_text']] = {
+                    'text': action['text'],
+                    'minutes': action['minutes'],
+                    'similar-to': json.loads(action['similar_to']) if action['similar_to'] else [],
+                    'is-repeatable-daily': bool(action['is_repeatable_daily']),
+                    'must-be-logged-at-end-of-day': bool(action['must_be_logged_at_end_of_day']),
+                    'warning': action['warning'] if action['warning'] else None,
+                }
+            
+            # Get custom actions
             cursor.execute('''
                 SELECT text, minutes, similar_to, is_repeatable_daily, 
                        must_be_logged_at_end_of_day, warning
@@ -528,6 +608,7 @@ def get_button_actions():
             custom_actions = cursor.fetchall()
             conn.close()
             
+            # Add custom actions
             for action in custom_actions:
                 actions.append({
                     'text': action['text'],
@@ -536,9 +617,39 @@ def get_button_actions():
                     'is-repeatable-daily': bool(action['is_repeatable_daily']),
                     'must-be-logged-at-end-of-day': bool(action['must_be_logged_at_end_of_day']),
                     'warning': action['warning'] if action['warning'] else None,
+                    'is_custom': True,
                 })
         except Exception as e:
-            print(f"Error loading custom actions: {e}")
+            print(f"Error loading user actions: {e}")
+    
+    # Process default actions: filter deleted, apply edits
+    for action in default_actions:
+        original_text = action['text']
+        
+        # Skip if deleted
+        if original_text in deleted_texts:
+            continue
+        
+        # Use edited version if exists, otherwise use default
+        if original_text in edited_actions_map:
+            edited = edited_actions_map[original_text]
+            actions.append({
+                **action,
+                'text': edited['text'],
+                'minutes': edited['minutes'],
+                'similar-to': edited['similar-to'],
+                'is-repeatable-daily': edited['is-repeatable-daily'],
+                'must-be-logged-at-end-of-day': edited['must-be-logged-at-end-of-day'],
+                'warning': edited['warning'],
+                'original_text': original_text,  # Keep track of original for editing
+                'is_edited': True,
+            })
+        else:
+            actions.append({
+                **action,
+                'original_text': original_text,
+                'is_edited': False,
+            })
     
     return jsonify({'actions': actions}), 200
 
@@ -555,10 +666,41 @@ def add_time():
         action = data.get('action')
         button_minutes = get_button_minutes()
 
-        if action not in button_minutes:
-            return jsonify({'error': 'Invalid action'}), 400
-
-        minutes_to_add = button_minutes[action]
+        # Get minutes - check button_minutes first, then check edited/custom actions
+        minutes_to_add = None
+        if action in button_minutes:
+            minutes_to_add = button_minutes[action]
+        else:
+            # Try to find in edited or custom actions
+            conn = get_db()
+            cursor = conn.cursor()
+            
+            # Check edited actions
+            cursor.execute('''
+                SELECT minutes
+                FROM edited_actions
+                WHERE user_id = ? AND text = ?
+            ''', (user_id, action))
+            edited = cursor.fetchone()
+            
+            if edited:
+                minutes_to_add = edited['minutes']
+            else:
+                # Check custom actions
+                cursor.execute('''
+                    SELECT minutes
+                    FROM custom_actions
+                    WHERE user_id = ? AND text = ?
+                ''', (user_id, action))
+                custom = cursor.fetchone()
+                
+                if custom:
+                    minutes_to_add = custom['minutes']
+            
+            conn.close()
+            
+            if minutes_to_add is None:
+                return jsonify({'error': 'Invalid action'}), 400
 
         conn = get_db()
         cursor = conn.cursor()
@@ -663,7 +805,7 @@ def get_user_actions(user_id):
 
 @app.route('/api/auth/reset', methods=['POST'])
 def reset_current_user():
-    """Reset the current user's actions and total minutes"""
+    """Reset the current user's actions and total minutes, and restore default actions"""
     user_id = session.get('user_id')
     if not user_id:
         return jsonify({'error': 'Not authenticated'}), 401
@@ -672,7 +814,7 @@ def reset_current_user():
         conn = get_db()
         cursor = conn.cursor()
 
-        # Delete all actions for this user
+        # Delete all time actions for this user
         cursor.execute('DELETE FROM time_actions WHERE user_id = ?', (user_id,))
 
         # Reset total minutes to 0
@@ -682,11 +824,277 @@ def reset_current_user():
             WHERE id = ?
         ''', (user_id,))
 
+        # Delete all custom actions
+        cursor.execute('DELETE FROM custom_actions WHERE user_id = ?', (user_id,))
+        
+        # Delete all deleted actions (restore defaults)
+        cursor.execute('DELETE FROM deleted_actions WHERE user_id = ?', (user_id,))
+        
+        # Delete all edited actions (restore defaults)
+        cursor.execute('DELETE FROM edited_actions WHERE user_id = ?', (user_id,))
+
         conn.commit()
         conn.close()
 
         return jsonify({'message': 'User reset successfully'}), 200
 
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/actions/delete', methods=['POST'])
+def delete_action():
+    """Delete a default action for the current user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.json
+        action_text = data.get('action_text', '').strip()
+        
+        if not action_text:
+            return jsonify({'error': 'Action text is required'}), 400
+        
+        # Can only delete default actions, not custom ones
+        default_actions = load_button_actions()
+        default_texts = {action['text'] for action in default_actions}
+        
+        if action_text not in default_texts:
+            return jsonify({'error': 'Can only delete default actions'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Add to deleted_actions (or update if exists)
+        cursor.execute('''
+            INSERT OR REPLACE INTO deleted_actions (user_id, action_text)
+            VALUES (?, ?)
+        ''', (user_id, action_text))
+        
+        # If this action was edited, remove the edit
+        cursor.execute('''
+            DELETE FROM edited_actions 
+            WHERE user_id = ? AND original_text = ?
+        ''', (user_id, action_text))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'message': 'Action deleted successfully'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/actions/edit', methods=['POST'])
+def edit_action():
+    """Edit a default action for the current user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.json
+        original_text = data.get('original_text', '').strip()
+        text = data.get('text', '').strip()
+        minutes = data.get('minutes', 0)
+        similar_to = data.get('similar-to', [])
+        is_repeatable_daily = data.get('is-repeatable-daily', True)
+        must_be_logged_at_end_of_day = data.get('must-be-logged-at-end-of-day', False)
+        warning = data.get('warning', '')
+        
+        if not original_text or not text:
+            return jsonify({'error': 'Original text and new text are required'}), 400
+        
+        if not isinstance(minutes, int) or minutes < 0:
+            return jsonify({'error': 'Minutes must be a non-negative integer'}), 400
+        
+        # Can only edit default actions
+        default_actions = load_button_actions()
+        default_texts = {action['text'] for action in default_actions}
+        
+        if original_text not in default_texts:
+            return jsonify({'error': 'Can only edit default actions'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Remove from deleted_actions if it was deleted
+        cursor.execute('''
+            DELETE FROM deleted_actions 
+            WHERE user_id = ? AND action_text = ?
+        ''', (user_id, original_text))
+        
+        # Insert or update edited action
+        cursor.execute('''
+            INSERT OR REPLACE INTO edited_actions 
+            (user_id, original_text, text, minutes, similar_to, is_repeatable_daily,
+             must_be_logged_at_end_of_day, warning, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+        ''', (
+            user_id,
+            original_text,
+            text,
+            minutes,
+            json.dumps(similar_to) if similar_to else None,
+            1 if is_repeatable_daily else 0,
+            1 if must_be_logged_at_end_of_day else 0,
+            warning if warning else None
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'message': 'Action edited successfully',
+            'action': {
+                'original_text': original_text,
+                'text': text,
+                'minutes': minutes,
+                'similar-to': similar_to,
+                'is-repeatable-daily': is_repeatable_daily,
+                'must-be-logged-at-end-of-day': must_be_logged_at_end_of_day,
+                'warning': warning,
+            }
+        }), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/actions/restore', methods=['POST'])
+def restore_action():
+    """Restore a deleted default action for the current user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.json
+        action_text = data.get('action_text', '').strip()
+        
+        if not action_text:
+            return jsonify({'error': 'Action text is required'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Remove from deleted_actions
+        cursor.execute('''
+            DELETE FROM deleted_actions 
+            WHERE user_id = ? AND action_text = ?
+        ''', (user_id, action_text))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'message': 'Action restored successfully'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/custom-actions/delete', methods=['POST'])
+def delete_custom_action_by_text():
+    """Delete a custom action by text for the current user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.json
+        action_text = data.get('text', '').strip()
+        
+        if not action_text:
+            return jsonify({'error': 'Action text is required'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Delete the custom action
+        cursor.execute('''
+            DELETE FROM custom_actions 
+            WHERE user_id = ? AND text = ?
+        ''', (user_id, action_text))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'message': 'Custom action deleted successfully'}), 200
+        
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/custom-actions/edit', methods=['POST'])
+def edit_custom_action():
+    """Edit a custom action for the current user"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+    
+    try:
+        data = request.json
+        original_text = data.get('original_text', '').strip()
+        text = data.get('text', '').strip()
+        minutes = data.get('minutes', 0)
+        similar_to = data.get('similar-to', [])
+        is_repeatable_daily = data.get('is-repeatable-daily', True)
+        must_be_logged_at_end_of_day = data.get('must-be-logged-at-end-of-day', False)
+        warning = data.get('warning', '')
+        
+        if not original_text or not text:
+            return jsonify({'error': 'Original text and new text are required'}), 400
+        
+        if not isinstance(minutes, int) or minutes < 0:
+            return jsonify({'error': 'Minutes must be a non-negative integer'}), 400
+        
+        conn = get_db()
+        cursor = conn.cursor()
+        
+        # Verify the action exists and belongs to this user
+        cursor.execute('''
+            SELECT id FROM custom_actions 
+            WHERE user_id = ? AND text = ?
+        ''', (user_id, original_text))
+        
+        if not cursor.fetchone():
+            conn.close()
+            return jsonify({'error': 'Custom action not found'}), 404
+        
+        # Update the custom action
+        cursor.execute('''
+            UPDATE custom_actions 
+            SET text = ?, minutes = ?, similar_to = ?, is_repeatable_daily = ?,
+                must_be_logged_at_end_of_day = ?, warning = ?
+            WHERE user_id = ? AND text = ?
+        ''', (
+            text,
+            minutes,
+            json.dumps(similar_to) if similar_to else None,
+            1 if is_repeatable_daily else 0,
+            1 if must_be_logged_at_end_of_day else 0,
+            warning if warning else None,
+            user_id,
+            original_text
+        ))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({
+            'message': 'Custom action updated successfully',
+            'action': {
+                'text': text,
+                'minutes': minutes,
+                'similar-to': similar_to,
+                'is-repeatable-daily': is_repeatable_daily,
+                'must-be-logged-at-end-of-day': must_be_logged_at_end_of_day,
+                'warning': warning,
+            }
+        }), 200
+        
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
@@ -762,12 +1170,12 @@ def create_custom_action():
 
 @app.route('/api/users/<int:user_id>/reset', methods=['POST'])
 def reset_user(user_id):
-    """Reset a user's actions and total minutes"""
+    """Reset a user's actions and total minutes, and restore default actions"""
     try:
         conn = get_db()
         cursor = conn.cursor()
 
-        # Delete all actions for this user
+        # Delete all time actions for this user
         cursor.execute('DELETE FROM time_actions WHERE user_id = ?', (user_id,))
 
         # Reset total minutes to 0
@@ -776,6 +1184,15 @@ def reset_user(user_id):
             SET total_minutes = 0
             WHERE id = ?
         ''', (user_id,))
+
+        # Delete all custom actions
+        cursor.execute('DELETE FROM custom_actions WHERE user_id = ?', (user_id,))
+        
+        # Delete all deleted actions (restore defaults)
+        cursor.execute('DELETE FROM deleted_actions WHERE user_id = ?', (user_id,))
+        
+        # Delete all edited actions (restore defaults)
+        cursor.execute('DELETE FROM edited_actions WHERE user_id = ?', (user_id,))
 
         conn.commit()
         conn.close()

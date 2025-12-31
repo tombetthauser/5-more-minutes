@@ -1,0 +1,145 @@
+.edit-actions-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  background-color: var(--color-background);
+  transition: background-color 0.3s ease;
+}
+
+.edit-actions-box {
+  background-color: var(--color-warningBg);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  padding: 30px;
+  width: 100%;
+  max-width: 600px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.edit-actions-title {
+  font-size: 28px;
+  font-weight: 300;
+  text-align: center;
+  margin-bottom: 12px;
+  color: var(--color-surfaceText, var(--color-text));
+  letter-spacing: -0.5px;
+  transition: color 0.3s ease;
+}
+
+.edit-actions-description {
+  font-size: 14px;
+  text-align: center;
+  margin-bottom: 30px;
+  color: var(--color-textMuted, var(--color-textSecondary));
+  transition: color 0.3s ease;
+}
+
+.actions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.action-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.action-info {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.action-text {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--color-surfaceText, var(--color-text));
+  transition: color 0.3s ease;
+}
+
+.action-minutes {
+  font-size: 14px;
+  color: var(--color-primary);
+  font-weight: 600;
+  transition: color 0.3s ease;
+}
+
+.action-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  background-color: var(--color-surface);
+  color: var(--color-textMuted, var(--color-textSecondary));
+  border: 1px solid var(--color-border);
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button-edit,
+.action-button-delete {
+  padding: 6px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.3s ease;
+}
+
+.action-button-edit {
+  background-color: var(--color-primary);
+  color: white;
+}
+
+.action-button-edit:hover {
+  opacity: 0.9;
+}
+
+.action-button-delete {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.action-button-delete:hover {
+  opacity: 0.9;
+}
+
+.edit-actions-footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.edit-actions-back-button {
+  background-color: var(--color-surface);
+  color: var(--color-surfaceText, var(--color-text));
+  border: 1px solid var(--color-border);
+  border-radius: 6px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+.edit-actions-back-button:hover {
+  background-color: var(--color-border);
+}
+

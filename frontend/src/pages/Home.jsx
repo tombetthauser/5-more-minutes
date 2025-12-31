@@ -579,6 +579,13 @@ function Home({ user, onLogout }) {
           <span className="link-separator">•</span>
           <button
             className="link-button"
+            onClick={() => navigate('/edit-actions')}
+          >
+            Edit Actions
+          </button>
+          <span className="link-separator">•</span>
+          <button
+            className="link-button"
             onClick={cycleTheme}
           >
             Change Colors
