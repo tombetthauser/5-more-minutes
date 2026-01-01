@@ -7,10 +7,14 @@ import '../pages/Auth.css'
 function Home({ user, onLogout }) {
   const { currentTheme, cycleTheme } = useTheme()
   const [timeData, setTimeData] = useState({ days: 0, hours: 0, minutes: 0 })
+  const [todayTimeData, setTodayTimeData] = useState({ days: 0, hours: 0, minutes: 0 })
+  const [showTodayTime, setShowTodayTime] = useState(false)
+  const [isFading, setIsFading] = useState(false)
   const [loading, setLoading] = useState(false)
   const [buttonActions, setButtonActions] = useState([])
   const [warning, setWarning] = useState(null)
   const [actionsTakenToday, setActionsTakenToday] = useState(new Set())
+  const [actionCountsToday, setActionCountsToday] = useState({})
   const [showJsonDetails, setShowJsonDetails] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const [showCustomActionForm, setShowCustomActionForm] = useState(false)
@@ -22,6 +26,10 @@ function Home({ user, onLogout }) {
     warning: '',
   })
   const [creatingAction, setCreatingAction] = useState(false)
+  const [showResetTodayModal, setShowResetTodayModal] = useState(false)
+  const [resettingToday, setResettingToday] = useState(false)
+  const [holdTimer, setHoldTimer] = useState(null)
+  const [isHolding, setIsHolding] = useState(false)
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -30,9 +38,19 @@ function Home({ user, onLogout }) {
     document.body.style.zoom = '1'
     
     fetchTime()
+    fetchTodayTime()
     loadButtonActions()
     fetchTodayActions()
   }, [])
+
+  useEffect(() => {
+    // Cleanup timer on unmount or when holdTimer changes
+    return () => {
+      if (holdTimer) {
+        clearTimeout(holdTimer)
+      }
+    }
+  }, [holdTimer])
 
   const loadButtonActions = async () => {
     try {
@@ -73,6 +91,7 @@ function Home({ user, onLogout }) {
       if (response.ok) {
         const data = await response.json()
         setActionsTakenToday(new Set(data.actions || []))
+        setActionCountsToday(data.action_counts || {})
       }
     } catch (error) {
       console.error('Failed to fetch today actions:', error)
@@ -90,6 +109,94 @@ function Home({ user, onLogout }) {
       }
     } catch (error) {
       console.error('Failed to fetch time:', error)
+    }
+  }
+
+  const fetchTodayTime = async () => {
+    try {
+      // Get timezone offset in minutes
+      const timezoneOffset = new Date().getTimezoneOffset() * -1
+      const response = await fetch(`/api/time/today?timezone_offset=${timezoneOffset}`, {
+        credentials: 'include',
+      })
+      if (response.ok) {
+        const data = await response.json()
+        setTodayTimeData(data)
+      }
+    } catch (error) {
+      console.error('Failed to fetch today time:', error)
+    }
+  }
+
+  const handleTimeDisplayClick = (e) => {
+    // Don't toggle if we just completed a long press
+    if (isHolding) {
+      setIsHolding(false)
+      return
+    }
+    setIsFading(true)
+    setTimeout(() => {
+      setShowTodayTime(!showTodayTime)
+      setIsFading(false)
+    }, 200) // Half of the fade duration
+  }
+
+  const handleTimeDisplayMouseDown = () => {
+    setIsHolding(false)
+    const timer = setTimeout(() => {
+      setIsHolding(true)
+      setShowResetTodayModal(true)
+    }, 5000) // 5 seconds
+    setHoldTimer(timer)
+  }
+
+  const handleTimeDisplayMouseUp = () => {
+    if (holdTimer) {
+      clearTimeout(holdTimer)
+      setHoldTimer(null)
+    }
+  }
+
+  const handleTimeDisplayMouseLeave = () => {
+    if (holdTimer) {
+      clearTimeout(holdTimer)
+      setHoldTimer(null)
+    }
+    setIsHolding(false)
+  }
+
+  const handleResetToday = async () => {
+    setResettingToday(true)
+    try {
+      const timezoneOffset = new Date().getTimezoneOffset() * -1
+      const response = await fetch('/api/actions/today/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ timezone_offset: timezoneOffset }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setShowResetTodayModal(false)
+        // Refresh all data
+        fetchTime()
+        fetchTodayTime()
+        fetchTodayActions()
+        // Show success message briefly
+        alert('Today\'s actions have been reset successfully!')
+      } else {
+        alert(data.error || 'Failed to reset today\'s actions')
+        setShowResetTodayModal(false)
+      }
+    } catch (error) {
+      alert('Network error. Please try again.')
+      setShowResetTodayModal(false)
+    } finally {
+      setResettingToday(false)
     }
   }
 
@@ -141,8 +248,9 @@ function Home({ user, onLogout }) {
       if (response.ok) {
         const data = await response.json()
         setTimeData(data)
-        // Refresh today's actions after adding
+        // Refresh today's actions and today's time after adding
         fetchTodayActions()
+        fetchTodayTime()
       }
     } catch (error) {
       console.error('Failed to add time:', error)
@@ -169,8 +277,9 @@ function Home({ user, onLogout }) {
         // After animation, actually add the time
         addTime(warning.text).then(() => {
           setIsAnimating(false)
-          // Refresh today's actions
+          // Refresh today's actions and today's time
           fetchTodayActions()
+          fetchTodayTime()
         })
       })
     }
@@ -281,12 +390,37 @@ function Home({ user, onLogout }) {
 
         <h2 className="subtitle">with {user.display_name}!</h2>
 
-        <div className={`time-display ${isAnimating ? 'time-display-animating' : ''}`}>
-          +{' '}
-          {timeData.days > 0 && `${timeData.days} ${timeData.days !== 1 ? 'dys' : 'dy'} `}
-          {timeData.hours > 0 && `${timeData.hours} hrs `}
-          {timeData.minutes > 0 && `${timeData.minutes} mins`}
-          {timeData.days === 0 && timeData.hours === 0 && timeData.minutes === 0 && '0 mins'}
+        <div 
+          className="time-display-container" 
+          onClick={handleTimeDisplayClick}
+          onMouseDown={handleTimeDisplayMouseDown}
+          onMouseUp={handleTimeDisplayMouseUp}
+          onMouseLeave={handleTimeDisplayMouseLeave}
+          onTouchStart={handleTimeDisplayMouseDown}
+          onTouchEnd={handleTimeDisplayMouseUp}
+          style={{ cursor: 'pointer' }}
+        >
+          <div className={`time-display ${isAnimating ? 'time-display-animating' : ''} ${isFading ? 'time-display-fading' : ''}`}>
+            +{' '}
+            {showTodayTime ? (
+              <>
+                {todayTimeData.days > 0 && `${todayTimeData.days} ${todayTimeData.days !== 1 ? 'dys' : 'dy'} `}
+                {todayTimeData.hours > 0 && `${todayTimeData.hours} hrs `}
+                {todayTimeData.minutes > 0 && `${todayTimeData.minutes} mins`}
+                {todayTimeData.days === 0 && todayTimeData.hours === 0 && todayTimeData.minutes === 0 && '0 mins'}
+              </>
+            ) : (
+              <>
+                {timeData.days > 0 && `${timeData.days} ${timeData.days !== 1 ? 'dys' : 'dy'} `}
+                {timeData.hours > 0 && `${timeData.hours} hrs `}
+                {timeData.minutes > 0 && `${timeData.minutes} mins`}
+                {timeData.days === 0 && timeData.hours === 0 && timeData.minutes === 0 && '0 mins'}
+              </>
+            )}
+          </div>
+          <div className={`time-display-label ${isFading ? 'time-display-fading' : ''}`}>
+            {showTodayTime ? '[ time added today ]' : '[ total added time ]'}
+          </div>
         </div>
 
         <div className="buttons-container">
@@ -310,29 +444,60 @@ function Home({ user, onLogout }) {
             // Button is gray if taken OR if similar action was taken (for non-repeatable)
             const isGrayed = isTaken || (similarActionTaken !== null && !isRepeatable)
             
+            const actionCount = actionCountsToday[action.text] || 0
+            const isClickedButRepeatable = actionCount > 0 && isRepeatable && !isGrayed
+            
             // Determine button style based on theme
             let buttonStyle = {}
             if (!isGrayed) {
-              if (currentTheme.id === 'dark' || currentTheme.id === 'terracotta' || currentTheme.id === 'claude' || currentTheme.id === 'french-gray') {
-                // Dark, Terracotta, Claude, and French Gray themes: use theme's button colors
-                buttonStyle = {
-                  backgroundColor: currentTheme.colors.buttonBg,
-                  color: currentTheme.colors.buttonText,
+              if (isClickedButRepeatable) {
+                // Button has been clicked but is still repeatable - use darker colors
+                if (currentTheme.id === 'dark' || currentTheme.id === 'terracotta' || currentTheme.id === 'claude' || currentTheme.id === 'french-gray') {
+                  buttonStyle = {
+                    backgroundColor: currentTheme.colors.clickedButRepeatableBackgroundColor,
+                    color: currentTheme.colors.clickedButRepeatableTextColor,
+                    borderColor: currentTheme.colors.clickedButRepeatableBorder,
+                  }
+                } else {
+                  // Light mode: darker pastel colors
+                  const darkerPastelColors = [
+                    '#E0C8CC', // Darker pink
+                    '#E0D4C0', // Darker peach
+                    '#E0E0C0', // Darker yellow
+                    '#C0E0CD', // Darker mint
+                    '#C0D4E0', // Darker blue
+                    '#D4C0E0', // Darker lavender
+                  ]
+                  const colorIndex = index % darkerPastelColors.length
+                  buttonStyle = {
+                    backgroundColor: darkerPastelColors[colorIndex],
+                    color: currentTheme.colors.clickedButRepeatableTextColor,
+                    borderColor: currentTheme.colors.clickedButRepeatableBorder,
+                  }
                 }
               } else {
-                // Light mode: pastel rainbow colors
-                const pastelColors = [
-                  '#F5D0D4', // Subtle pink
-                  '#F5E4D0', // Subtle peach
-                  '#F5F5D0', // Subtle yellow
-                  '#D0F5DD', // Subtle mint
-                  '#D0E4F5', // Subtle blue
-                  '#E4D0F5', // Subtle lavender
-                ]
-                const colorIndex = index % pastelColors.length
-                buttonStyle = {
-                  backgroundColor: pastelColors[colorIndex],
-                  color: currentTheme.colors.buttonText,
+                // Normal button styling
+                if (currentTheme.id === 'dark' || currentTheme.id === 'terracotta' || currentTheme.id === 'claude' || currentTheme.id === 'french-gray') {
+                  // Dark, Terracotta, Claude, and French Gray themes: use theme's button colors
+                  buttonStyle = {
+                    backgroundColor: currentTheme.colors.buttonBg,
+                    color: currentTheme.colors.buttonText,
+                  }
+                } else {
+                  // Light mode: pastel rainbow colors
+                  const pastelColors = [
+                    '#F5D0D4', // Subtle pink
+                    '#F5E4D0', // Subtle peach
+                    '#F5F5D0', // Subtle yellow
+                    '#D0F5DD', // Subtle mint
+                    '#D0E4F5', // Subtle blue
+                    '#E4D0F5', // Subtle lavender
+                  ]
+                  const colorIndex = index % pastelColors.length
+                  buttonStyle = {
+                    backgroundColor: pastelColors[colorIndex],
+                    color: currentTheme.colors.buttonText,
+                  }
                 }
               }
             }
@@ -345,7 +510,18 @@ function Home({ user, onLogout }) {
                 disabled={loading}
                 style={buttonStyle}
               >
-                {action.text} (+{action.minutes})
+                <div className="action-button-content">
+                  <span className="action-button-text">
+                    {action.text} (+{action.minutes})
+                  </span>
+                  {actionCount > 0 && (
+                    <div className="action-dots">
+                      {Array.from({ length: actionCount }).map((_, i) => (
+                        <span key={i} className="action-dot" />
+                      ))}
+                    </div>
+                  )}
+                </div>
               </button>
             )
           })}
@@ -561,6 +737,51 @@ function Home({ user, onLogout }) {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        )}
+
+        {showResetTodayModal && (
+          <div className="warning-overlay" onClick={() => setShowResetTodayModal(false)}>
+            <div className="warning-modal" onClick={(e) => e.stopPropagation()}>
+              <div className="warning-header">
+                <div>
+                  <h3 className="warning-title">Reset Today's Actions</h3>
+                  <p className="warning-action-name">This action cannot be undone</p>
+                </div>
+              </div>
+              <p className="warning-message">
+                Are you sure you want to reset all actions from today (since previous midnight)? This will:
+              </p>
+              <ul style={{ 
+                margin: '0 0 16px 0', 
+                paddingLeft: '20px',
+                color: 'var(--color-surfaceText, var(--color-text))',
+                fontSize: '14px',
+                lineHeight: '1.5'
+              }}>
+                <li>Delete all actions logged today</li>
+                <li>Subtract today's time from your total time</li>
+              </ul>
+              <p className="warning-message" style={{ marginBottom: '0' }}>
+                Your total time before today will remain unchanged.
+              </p>
+              <div className="warning-actions">
+                <button
+                  className="warning-button warning-button-cancel"
+                  onClick={() => setShowResetTodayModal(false)}
+                  disabled={resettingToday}
+                >
+                  Cancel
+                </button>
+                <button
+                  className="warning-button warning-button-reset"
+                  onClick={handleResetToday}
+                  disabled={resettingToday}
+                >
+                  {resettingToday ? 'Resetting...' : 'Reset Today'}
+                </button>
+              </div>
             </div>
           </div>
         )}

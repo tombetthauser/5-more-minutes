@@ -19,6 +19,9 @@ const themes = [
       buttonDisabledBg: 'transparent',
       buttonDisabledText: '#c7c7cc',
       buttonDisabledBorder: '#aaa',
+      clickedButRepeatableBackgroundColor: '#ccc', // Darker gray for clicked repeatable buttons
+      clickedButRepeatableBorder: '#ccc', // Darker border
+      clickedButRepeatableTextColor: '#1c1c1e', // Dark text
       primary: '#007aff', // iOS blue
       primaryHover: '#0051d5',
       error: '#ff3b30', // Red
@@ -51,6 +54,9 @@ const themes = [
       buttonDisabledBg: 'transparent',
       buttonDisabledText: '#d4a574',
       buttonDisabledBorder: '#a54d2e',
+      clickedButRepeatableBackgroundColor: '#e8d4c0', // Darker cream for clicked repeatable buttons
+      clickedButRepeatableBorder: '#8b3e1f', // Darker terracotta border
+      clickedButRepeatableTextColor: '#6b2e0f', // Darker terracotta text
       primary: '#4a90e2', // Complementary blue
       primaryHover: '#357abd',
       error: '#d32f2f', // Red
@@ -83,6 +89,9 @@ const themes = [
       buttonDisabledBg: 'transparent',
       buttonDisabledText: '#808080',
       buttonDisabledBorder: '#333333',
+      clickedButRepeatableBackgroundColor: '#b0b0b0', // Darker gray for clicked repeatable buttons
+      clickedButRepeatableBorder: '#666666', // Darker border
+      clickedButRepeatableTextColor: '#000000', // Black text
       primary: '#0095f6',
       primaryHover: '#1877f2',
       error: '#ed4956',
@@ -115,6 +124,9 @@ const themes = [
       buttonDisabledBg: 'transparent',
       buttonDisabledText: '#8e8e8e',
       buttonDisabledBorder: '#dbdbdb',
+      clickedButRepeatableBackgroundColor: '#E0C8CC', // Darker pastel pink (will be applied dynamically)
+      clickedButRepeatableBorder: '#C0A0A5', // Darker border
+      clickedButRepeatableTextColor: '#1a1a1a', // Darker text
       primary: '#0095f6',
       primaryHover: '#1877f2',
       error: '#ed4956',
@@ -147,6 +159,9 @@ const themes = [
       buttonDisabledBg: 'transparent',
       buttonDisabledText: '#9a9a9a',
       buttonDisabledBorder: '#d4c5b9',
+      clickedButRepeatableBackgroundColor: '#d4c9be', // Darker warm gray for clicked repeatable buttons
+      clickedButRepeatableBorder: '#b8a99c', // Darker border
+      clickedButRepeatableTextColor: '#0a0a0a', // Darker text
       primary: '#c99a5c', // Warm brown/gold
       primaryHover: '#b88a4c',
       error: '#c94a2d',

@@ -13,7 +13,9 @@ function EditProfile({ user, onUpdate }) {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [showResetModal, setShowResetModal] = useState(false)
+  const [showResetTodayModal, setShowResetTodayModal] = useState(false)
   const [resetting, setResetting] = useState(false)
+  const [resettingToday, setResettingToday] = useState(false)
   const navigate = useNavigate()
 
   const handleChange = (e) => {
@@ -97,6 +99,45 @@ function EditProfile({ user, onUpdate }) {
     }
   }
 
+  const handleResetToday = async () => {
+    setResettingToday(true)
+    try {
+      const timezoneOffset = new Date().getTimezoneOffset() * -1
+      const response = await fetch('/api/actions/today/reset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'include',
+        body: JSON.stringify({ timezone_offset: timezoneOffset }),
+      })
+
+      const data = await response.json()
+
+      if (response.ok) {
+        setShowResetTodayModal(false)
+        setSuccess('Today\'s actions have been reset successfully!')
+        // Refresh user data
+        const userResponse = await fetch('/api/auth/me', {
+          credentials: 'include',
+        })
+        if (userResponse.ok) {
+          const userData = await userResponse.json()
+          onUpdate(userData.user)
+        }
+        setTimeout(() => navigate('/'), 2000)
+      } else {
+        setError(data.error || 'Reset failed')
+        setShowResetTodayModal(false)
+      }
+    } catch (error) {
+      setError('Network error. Please try again.')
+      setShowResetTodayModal(false)
+    } finally {
+      setResettingToday(false)
+    }
+  }
+
   const profilePicUrl = user.profile_picture
     ? `/api/uploads/${user.profile_picture}`
     : null
@@ -177,6 +218,13 @@ function EditProfile({ user, onUpdate }) {
           >
             Reset All Actions & Time
           </button>
+          <button
+            type="button"
+            onClick={() => setShowResetTodayModal(true)}
+            className="auth-button-reset"
+          >
+            Reset Today's Actions
+          </button>
         </form>
       </div>
 
@@ -219,6 +267,51 @@ function EditProfile({ user, onUpdate }) {
                 disabled={resetting}
               >
                 {resetting ? 'Resetting...' : 'Reset'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {showResetTodayModal && (
+        <div className="warning-overlay" onClick={() => setShowResetTodayModal(false)}>
+          <div className="warning-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="warning-header">
+              <div>
+                <h3 className="warning-title">Reset Today's Actions</h3>
+                <p className="warning-action-name">This action cannot be undone</p>
+              </div>
+            </div>
+            <p className="warning-message">
+              Are you sure you want to reset all actions from today (since previous midnight)? This will:
+            </p>
+            <ul style={{ 
+              margin: '0 0 16px 0', 
+              paddingLeft: '20px',
+              color: 'var(--color-surfaceText, var(--color-text))',
+              fontSize: '14px',
+              lineHeight: '1.5'
+            }}>
+              <li>Delete all actions logged today</li>
+              <li>Subtract today's time from your total time</li>
+            </ul>
+            <p className="warning-message" style={{ marginBottom: '0' }}>
+              Your total time before today will remain unchanged.
+            </p>
+            <div className="warning-actions">
+              <button
+                className="warning-button warning-button-cancel"
+                onClick={() => setShowResetTodayModal(false)}
+                disabled={resettingToday}
+              >
+                Cancel
+              </button>
+              <button
+                className="warning-button warning-button-reset"
+                onClick={handleResetToday}
+                disabled={resettingToday}
+              >
+                {resettingToday ? 'Resetting...' : 'Reset Today'}
               </button>
             </div>
           </div>

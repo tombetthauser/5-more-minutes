@@ -59,13 +59,32 @@
   transition: color 0.3s ease;
 }
 
+.time-display-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
 .time-display {
   font-size: 32px;
   font-weight: 700;
-  margin-bottom: 40px;
   text-align: center;
   color: var(--color-text);
-  transition: color 0.3s ease;
+  transition: color 0.3s ease, opacity 0.4s ease;
+}
+
+.time-display-fading {
+  opacity: 0;
+}
+
+.time-display-label {
+  font-size: 12px;
+  font-weight: 400;
+  text-align: center;
+  color: var(--color-textSecondary);
+  margin-top: 4px;
+  transition: color 0.3s ease, opacity 0.4s ease;
 }
 
 .buttons-container {
@@ -78,13 +97,53 @@
 
 .action-button {
   border: 2px solid transparent;
+  border-style: solid;
   border-radius: 8px;
   padding: 12px 24px;
   font-size: 18px;
   font-weight: 400;
   cursor: pointer;
-  transition: opacity 0.2s, transform 0.1s, border-color 0.2s;
+  transition: opacity 0.2s, transform 0.1s, border-color 0.4s ease, background-color 0.4s ease, color 0.4s ease;
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 56px;
+  position: relative;
+}
+
+.action-button-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+}
+
+.action-button-text {
+  text-align: center;
+  line-height: 1.2;
+}
+
+.action-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  height: 4px;
+}
+
+.action-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: currentColor;
+  opacity: 0.6;
 }
 
 .action-button:hover:not(:disabled) {
@@ -117,10 +176,15 @@
 .action-button-add-new {
   background-color: var(--color-buttonDisabledBg) !important;
   color: var(--color-buttonDisabledText) !important;
-  border: 2px solid var(--color-buttonDisabledBorder) !important;
+  border: 2px dashed var(--color-buttonDisabledBorder) !important;
   cursor: pointer !important;
   opacity: 0.7;
   font-style: italic;
+  padding: 8px 16px;
+  font-size: 14px;
+  /* width: auto !important; */
+  width: 75%;
+  align-self: center;
 }
 
 .action-button-add-new:hover:not(:disabled) {

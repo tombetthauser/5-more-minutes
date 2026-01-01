@@ -474,6 +474,71 @@ def get_time():
     return jsonify(time_data), 200
 
 
+@app.route('/api/time/today', methods=['GET'])
+def get_time_today():
+    """Get time added today (since local midnight)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    try:
+        # Get timezone offset from query parameter (in minutes)
+        timezone_offset = request.args.get('timezone_offset', type=int)
+        if timezone_offset is None:
+            return jsonify({'error': 'Timezone offset required'}), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Calculate today's start in UTC based on user's timezone
+        from datetime import datetime, timedelta, timezone
+        
+        # Get current time in user's timezone
+        user_tz = timezone(timedelta(minutes=-timezone_offset))
+        now = datetime.now(user_tz)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Convert to UTC for comparison with database timestamps
+        today_start_utc = today_start.astimezone(timezone.utc)
+        
+        # Get all time actions for this user with timestamps
+        cursor.execute('''
+            SELECT minutes_added, created_at
+            FROM time_actions
+            WHERE user_id = ?
+        ''', (user_id,))
+        
+        actions = cursor.fetchall()
+        conn.close()
+
+        # Sum minutes for actions that occurred today
+        total_minutes_today = 0
+        for action in actions:
+            try:
+                action_str = action['created_at']
+                if 'T' in action_str:
+                    if action_str.endswith('Z'):
+                        action_str = action_str.replace('Z', '+00:00')
+                    elif '+' not in action_str and '-' not in action_str[-6:]:
+                        action_str = action_str + '+00:00'
+                    action_time = datetime.fromisoformat(action_str)
+                else:
+                    action_time = datetime.strptime(action_str, '%Y-%m-%d %H:%M:%S')
+                    action_time = action_time.replace(tzinfo=timezone.utc)
+                
+                if action_time >= today_start_utc:
+                    total_minutes_today += action['minutes_added'] or 0
+            except Exception as e:
+                print(f"Error parsing timestamp {action['created_at']}: {e}")
+                continue
+
+        time_data = minutes_to_days_hours_minutes(total_minutes_today)
+        return jsonify(time_data), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route('/api/actions/today', methods=['GET'])
 def get_today_actions():
     """Get actions taken today (based on user's local timezone)"""
@@ -545,8 +610,15 @@ def get_today_actions():
                 print(f"Error parsing timestamp {action['created_at']}: {e}")
                 continue
 
-        # Return unique actions taken today
-        return jsonify({'actions': list(set(actions_today))}), 200
+        # Count occurrences of each action
+        from collections import Counter
+        action_counts = Counter(actions_today)
+        
+        # Return unique actions and counts
+        return jsonify({
+            'actions': list(set(actions_today)),  # Keep for backward compatibility
+            'action_counts': dict(action_counts)  # New: action -> count mapping
+        }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -798,6 +870,96 @@ def get_user_actions(user_id):
             })
 
         return jsonify({'actions': actions_list}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/actions/today/reset', methods=['POST'])
+def reset_today_actions():
+    """Reset actions from the current day (since previous midnight)"""
+    user_id = session.get('user_id')
+    if not user_id:
+        return jsonify({'error': 'Not authenticated'}), 401
+
+    try:
+        # Get timezone offset from request body or query parameter
+        data = request.get_json() or {}
+        timezone_offset = data.get('timezone_offset') or request.args.get('timezone_offset', type=int)
+        if timezone_offset is None:
+            return jsonify({'error': 'Timezone offset required'}), 400
+
+        conn = get_db()
+        cursor = conn.cursor()
+
+        # Calculate today's start in UTC based on user's timezone
+        from datetime import datetime, timedelta, timezone
+        
+        # Get current time in user's timezone
+        user_tz = timezone(timedelta(minutes=-timezone_offset))
+        now = datetime.now(user_tz)
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        
+        # Convert to UTC for comparison with database timestamps
+        today_start_utc = today_start.astimezone(timezone.utc)
+        
+        # Get all time actions for this user
+        cursor.execute('''
+            SELECT id, action, minutes_added, created_at
+            FROM time_actions
+            WHERE user_id = ?
+        ''', (user_id,))
+        
+        actions = cursor.fetchall()
+
+        # Find actions from today and calculate total minutes to subtract
+        actions_to_delete = []
+        total_minutes_to_subtract = 0
+        
+        for action in actions:
+            try:
+                action_str = action['created_at']
+                if 'T' in action_str:
+                    if action_str.endswith('Z'):
+                        action_str = action_str.replace('Z', '+00:00')
+                    elif '+' not in action_str and '-' not in action_str[-6:]:
+                        action_str = action_str + '+00:00'
+                    action_time = datetime.fromisoformat(action_str)
+                else:
+                    action_time = datetime.strptime(action_str, '%Y-%m-%d %H:%M:%S')
+                    action_time = action_time.replace(tzinfo=timezone.utc)
+                
+                if action_time >= today_start_utc:
+                    actions_to_delete.append(action['id'])
+                    total_minutes_to_subtract += action['minutes_added'] or 0
+            except Exception as e:
+                print(f"Error parsing timestamp {action['created_at']}: {e}")
+                continue
+
+        # Delete today's actions
+        if actions_to_delete:
+            placeholders = ','.join(['?'] * len(actions_to_delete))
+            cursor.execute(f'''
+                DELETE FROM time_actions 
+                WHERE id IN ({placeholders})
+            ''', actions_to_delete)
+
+        # Subtract today's minutes from total
+        if total_minutes_to_subtract > 0:
+            cursor.execute('''
+                UPDATE users 
+                SET total_minutes = MAX(0, total_minutes - ?)
+                WHERE id = ?
+            ''', (total_minutes_to_subtract, user_id))
+
+        conn.commit()
+        conn.close()
+
+        return jsonify({
+            'message': 'Today\'s actions reset successfully',
+            'actions_deleted': len(actions_to_delete),
+            'minutes_subtracted': total_minutes_to_subtract
+        }), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
